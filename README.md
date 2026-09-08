@@ -16,6 +16,6 @@ If you find these notes helpful, consider giving the repository a star ⭐
 - [Section 10: Weighting](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec10_weighting.pdf)
 - [Section 11: Panel Data](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec11_did_synthetic_control.pdf)
 
-I drew inspiration from the wonderful [lecture notes of Kyla Chasalow](https://github.com/kchaz/CausalCourseNotes), a previous teaching fellow for the course. Also Peng Ding's [*A First Course in Causal Inference*](https://arxiv.org/pdf/2305.18793) has been an invaluable reference on many topics. I warmly recommend both.
+I drew inspiration from the wonderful [lecture notes](https://github.com/kchaz/CausalCourseNotes) from Kyla Chasalow, a previous teaching fellow for the course. Also Peng Ding's [*A First Course in Causal Inference*](https://arxiv.org/pdf/2305.18793) has been an invaluable reference on many topics. I warmly recommend both.
 
 Copyright © 2026 Benedikt Koch. You are welcome to download these notes for personal use and share a link to this repository. Redistribution requires permission; see [LICENSE](LICENSE).
