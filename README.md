@@ -23,6 +23,8 @@ If you find these notes helpful, consider giving the repository a star ⭐
 - [Midterm Review Slides](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/midterm_review_lecture.pdf)
 - [Final Review Slides](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/final_review_lecture.pdf)
 
+## Acknowledgments and License
+
 For these notes I drew inspiration from the wonderful [lecture notes](https://github.com/kchaz/CausalCourseNotes) from Kyla Chasalow, a previous teaching fellow for the course. Also Peng Ding's [A First Course in Causal Inference](https://arxiv.org/pdf/2305.18793) has been an invaluable reference on many topics. I warmly recommend both.
 
 Copyright © 2026 Benedikt Koch. You are welcome to download these notes for personal use and share a link to this repository. Redistribution requires permission; see [LICENSE](LICENSE).
