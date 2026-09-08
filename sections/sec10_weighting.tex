@@ -1,0 +1,361 @@
+\documentclass[11pt]{exam}
+\usepackage{style/preamble}
+\newcommand{\name}{Section 10: Weighting}
+
+
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+
+\section{Weighting}
+\subsection{Motivation}
+In the previous module we have encountered the matching estimators (minus the bias correction)
+\begin{align*}
+    \hat \tau^\mathrm{m}_{\ATT} &= \frac{1}{n_1} \sum_{i=1}^n  T_i \left(Y_i - \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j \right),
+    \\
+    \hat \tau^\mathrm{m}_{\ATE} &= \frac{1}{n} \sum_{i=1}^n \lt(T_i Y_i + (1 - T_i) \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j\rt) - \lt((1-T_i) Y_i + T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j\rt),
+\end{align*}
+with appropriately defined matching set $\mathcal{M}_i = \mathcal{M}_i(\bX_1, \ldots, \bX_n, T_1, \ldots, T_n)$. 
+We could have equivalently written these as
+\begin{align*}
+    \hat \tau^\mathrm{m}_{\ATT} &=  \frac{1}{n_1} \sum_{i=1}^n T_i Y_i - \frac{1}{n_1}\sum_{i=1}^n (1 - T_i) w^{\ATT}_i Y_i,
+    \\
+    \hat \tau^\mathrm{m}_{\ATE} &= \frac{1}{n} \sum_{i=1}^n (2T_i - 1) w^{\ATE}_i Y_i.
+\end{align*}
+with weights $w^{\ATT}_i = \sum_{j=1}^n \frac{1}{M_j}\indicator{i \in \mathcal{M}_j} $ and $w^{\ATE}_i = 1 + w^{\ATT}_i$. This motivates considering \emph{weighting} estimators of the form
+\[
+    \hat \tau = \frac{1}{n} \sum_{i=1}^n T_i w_{1i} Y_i -  \frac{1}{n} \sum_{i=1}^n (1-T_i) w_{0i} Y_i, \qquad \text{or simply,  } \hat \tau = \frac{1}{n} \sum_{i=1}^n w_i Y_i,
+\]
+and studying their weights directly, without concerning ourselves with the (often cumbersome) matching procedure.
+In this module, we will discuss two approaches to weighting: \emph{Propensity Score Weighting} and \emph{Double Robust Estimation}.
+
+\section{Propensity Score Weighting}
+\subsection{The Central Role of Propensity Score}
+This subsection is taken from \citet[Section~11]{ding2023coursecausalinference}. Assuming i.i.d. sampling and \emph{SUTVA}, in observational causal inference we have four random variables associated with each unit: $\{\bX, T, Y(0), Y(1)\}$. Its joint distribution can be factorized
+\[
+    \Pr(\bX, T, Y(0), Y(1)) = \Pr(\bX) \Pr(Y(0), Y(1) \mid \bX) \Pr(T \mid \bX, Y(0), Y(1)),
+\]
+where 
+\begin{itemize}
+    \item $\Pr(\bX)$ is the covariate distribution,
+    \item $\Pr(Y(0), Y(1) \mid \bX)$ is the outcome distribution conditional on the covariates $\bX$,
+    \item $\Pr(T \mid \bX, Y(0), Y(1))$ is the treatment distribution conditional on $\{\bX, Y(0), Y(1)\}$.
+\end{itemize}
+If we knew the joint distribution we could identify \emph{any} causal estimand. However, apriori, only $\Pr(\bX)$ is identifiable as the other two building blocks depend on the causal quantities $\{Y(0), Y(1)\}$.
+
+In this section, we focus on the conditional treatment distribution and redefine the propensity score as
+\[
+ e(\bX, Y(0), Y(1)) = \Pr(T = 1 \mid \bX, Y(0), Y(1)).
+\]
+Under strong ignorability, $T \ind \{Y(0), Y(1)\} \mid \bX$, this reduces to the familiar
+\[
+e(\bX) =  \Pr(T = 1 \mid \bX).
+\]
+The propensity score was first introduced as a key concept in \citet{rosenbaum1983central} and many of the following results have been adapted from there.
+
+\begin{theorem}[Propensity score as one-dimensional summary]\label{thm:ps_one_dim_summary}
+    If $T \ind \{Y(0), Y(1)\} \mid \bX$ then $T \ind \{Y(0), Y(1)\} \mid e(\bX)$.
+\end{theorem}
+Theorem~\ref{thm:ps_one_dim_summary} states that if strong ignorability holds conditional on covariates $\bX$ then it is enough adjust for the propensity score $e(\bX)$. This is quite remarkable as $\bX$ can be very high-dimensional, but $e(\bX) \in [0, 1]$. Therefore we can view the propensity score as a dimension reduction tool.
+\begin{proof}
+    By conditional independence we need to show that
+    \[
+    \Pr(T = 1\mid e(\bX), Y(0), Y(1)) = \Pr(T = 1\mid e(\bX)).
+    \]
+    We have
+    \begin{align*}
+        \Pr(T = 1 \mid e(\bX), Y(0), Y(1)) &= \E[T \mid e(\bX), Y(0), Y(1)]
+        \\
+        &= \E[\E[T \mid \bX, e(\bX), Y(0), Y(1)] \mid e(\bX), Y(0), Y(1)] \qquad \text{(LIE)}
+        \\
+        &= \E[\E[T \mid \bX, Y(0), Y(1)] \mid e(\bX), Y(0), Y(1)] \qquad (e(\bX) \text{ is a function of } \bX)
+        \\
+        &= \E[\E[T \mid \bX] \mid e(\bX), Y(0), Y(1)] \qquad (\text{unconfoundedness})
+        \\
+        &= \E[\Pr(T = 1\mid \bX) \mid e(\bX), Y(0), Y(1)]
+        \\
+        &= \E[e(\bX) \mid e(\bX), Y(0), Y(1)]
+        \\
+        &= e(\bX)
+        \\
+        &= \E[e(\bX) \mid e(\bX)]
+        \\
+        &= \E[\E[T \mid \bX] \mid e(\bX)]
+        \\
+        &= \E[\E[T \mid e(\bX), \bX] \mid e(\bX)] \qquad (e(\bX) \text{ is a function of } \bX)
+        \\
+        &= \E[T \mid e(\bX)]  \qquad (\text{reverse LIE})
+        \\
+        &= \Pr(T = 1\mid e(\bX)).
+    \end{align*}
+\end{proof}
+
+\begin{remark}
+    Theorem~\ref{thm:ps_one_dim_summary} also suggests that if we discretize the propensity score into $K$ quantiles $e_1, \ldots, e_k$ that unconfoundedness
+\[
+    T_i \ind \{Y_i(0), Y_i(1)\} \mid e(\bX_i) = e_k, \quad \text{for } k = 1, \ldots, K. 
+\]
+holds approximately for each quantile. We can use this to estimate the $\ATE$. Following \citet[Section~2]{wagerathey2023causalinference} we can implement this by, 
+\begin{enumerate}
+    \item Estimate $\hat e(\bx)$,
+    \item Sort the estimated propensity score: $\hat e(\bX_{i_1}) \leq \hat e(\bX_{i_2}) \leq \ldots \leq \hat e(\bX_{i_n})$,
+    \item Split the sample into $K$ evenly sized strata using the sorted propensity score,
+    \item For each stratum $k=1, \ldots, K$ estimate
+    \[
+     \hat \tau_k = \frac{1}{|\{i: T_i = 1, e(\bX_i) = e_k\}|}\sum_{i: e(\bX_i) = e_k} T_i Y_i - \frac{1}{|\{i: T_i = 0, e(\bX_i) = e_k\}|}\sum_{i: e(\bX_i) = e_k} (1- T_i) Y_i,
+    \]
+    \item Combine: $\hat \tau^{\ATE} = \frac{1}{K} \sum_{k=1}^K \hat \tau_k$.
+\end{enumerate}
+\end{remark}
+
+For the next property, we need the following definition
+\begin{definition}[Balancing Score]
+    A function of the covariates $b(\bX)$ is a balancing score if
+    \[
+    T_i \ind \bX_i \mid b(\bX_i).
+    \]
+\end{definition}
+A trivial balancing score is $b(\bx) = \bx$. We are most interested in lower dimensional balancing scores. 
+
+\begin{lemma}[\citet{imbens2015causal} Lemma~12.2, Balancing Property of the Propensity Score]
+    The propensity score $e(\bX)$ is a balancing score, i.e., $T_i \ind \bX_i \mid e(\bX_i)$.
+\end{lemma}
+
+It turns out that for every balancing score $b(\bx)$ we have
+\[
+    T_i \ind \{Y_i(0), Y_i(1)\} \mid b(\bX_i),
+\]
+so the propensity score is not that special in that perspective. What makes the propensity score special is that it is the \emph{coarsest} balancing score.
+
+\begin{lemma}[\citet{imbens2015causal} Lemma~12.3, Coarseness of Balancing Scores]
+    The propensity score is the coarsest balancing score. That is, for every balancing score $b$ there exists a function $f_b$ such that $e(\bx) = f_b(b(\bx))$.
+\end{lemma}
+Since the propensity score is the coarsest possible balancing score, it \emph{maximally} compresses all the information given in the covariates $\bX$ needed to adjust for.
+
+\subsection{Inverse Probability Weighting}
+How does this connects to weighting? 
+\begin{theorem}\label{thm:ipw_theory}
+    Assuming i.i.d. sampling, \emph{SUTVA}, \emph{Unconfoundedness} and \emph{Overlap} we have
+    \[
+    \E[Y(1)] = \E\lt[\frac{T Y}{e(\bX)}\rt], \qquad \E[Y(0)] = \E\lt[\frac{(1 - T) Y}{1 - e(\bX)}\rt],
+    \]
+    and 
+    \[
+    \ATE = \E[Y(1) - Y(0)] = \E\lt[\frac{T Y}{e(\bX)} - \frac{(1 - T) Y}{1 - e(\bX)}\rt].
+    \]
+\end{theorem}
+\begin{proof}
+    \begin{align*}
+        \E\lt[\frac{T Y}{e(\bX)}\rt] &= \E\lt[\frac{T Y(1)}{e(\bX)}\rt]
+        \\
+        &= \E\lt[\E\lt[ \frac{T Y(1)}{e(\bX)} \mid \bX \rt]\rt] \qquad \text{(LIE)}
+        \\
+        &=  \E\lt[\frac{\E[Y(1) \mid \bX]}{e(\bX)} \E\lt[T\mid \bX \rt]\rt] \qquad \text{(Unconfoundedness)}
+        \\
+        &= \E\lt[\frac{\E[Y(1) \mid \bX]}{e(\bX)}e(\bX)\rt]
+        \\
+        &= \E[Y(1)].
+    \end{align*}
+A similar argument can be applied to $\E[Y(0)]$. Taking the difference yields the claim.
+\end{proof}
+
+Theorem~\ref{thm:ipw_theory} suggest the following weighting estimator for the $\ATE$
+\[
+    \hat \tau_{\ATE}^{\mathrm{ht}} = \frac{1}{n} \sum_{i=1}^n \frac{T_i Y_i}{\hat e(\bX_i)} - \frac{1}{n}\sum_{i=1}^n \frac{(1 - T_i) Y_i}{1 - \hat e(\bX_i)},
+\]
+where $\hat e(\bX_i)$ is the estimated propensity score. This estimator is called the inverse propensity score weighting (IPW) estimator, sometimes also called Horvitz–Thompson
+(HT) estimator, named after \citet{horvitz1952generalization}, who proposed it first. In theory $\hat \tau_{\ATE}^{\mathrm{ht}}$ is an unbiased estimator if the propensity score ist estimated correctly.
+
+\paragraph{Intuition.}
+Consider the treated term $\frac{1}{n}\sum_{i=1}^n \frac{T_i Y_i}{\hat e(\mathbf{X}_i)}$.
+Each treated outcome is divided by its treatment probability, so rarely treated covariate profiles ($\hat e_i$ small) receive larger weights and stand in for many similar units who were not treated due to their low $\hat e_i$. This reweighs the population to what would happen if everyone were treated. A similar argument can be applied to the second term.
+
+\paragraph{Challenges.}
+There are two main issues with $\hat \tau_{\ATE}^{\mathrm{HT}}$.
+\begin{enumerate}
+    \item $\hat e(\bX_i)$ can be very large or small. This can lead to numerical instability but also to very large weights which dominate the whole estimator. We essentially then only compare those units. This is especially bad if our scores are not estimated well.
+    \item The estimator is not shift invariant, i.e., for $Y_i' = Y_i + c$ we obtain a different estimator, although the ATE stays the same.
+\end{enumerate}
+
+We try to address these by introducing the Hajek estimator \citep{Hajek1971Comment}
+\[
+    \hat \tau_{\ATE}^{\mathrm{hajek}} = \frac{\sum_{i=1}^n \frac{T_i Y_i}{\hat e(\bX_i)}}{\sum_{i=1}^n \frac{T_i}{\hat e(\bX_i)}} - \frac{\sum_{i=1}^n \frac{(1 - T_i) Y_i}{\hat 1 - e(\bX_i)}}{\sum_{i=1}^n \frac{1 - T_i}{1 - \hat e(\bX_i)}}.
+\]
+The Hajek estimator has normalized weights but is not unbiased (even theoretically). Often desired theoretical properties are proved with $\hat \tau_{\ATE}^{\mathrm{ht}}$ but for practical considerations $\hat \tau_{\ATE}^{\mathrm{hajek}}$ is used.
+
+\begin{remark}
+    Define the so called \emph{clever covariate} 
+    \[
+    H = H(T, \bX) = \frac{T}{e(\bX)} - \frac{1 - T}{1 - e(\bX)},
+    \]
+    such that
+    \[
+    \ATE = \E[Y H] \approx \frac{1}{n} \sum_{i=1}^n Y_i \hat H_i.
+    \]
+    This emphasizes the role of the IPW as a weighting estimator, but also serves other purposes. By definition $\E[H \mid \bX] = 0$. We can use this as a diagnostic tool by regressing $\hat H \sim \bX$ and observing whether $\bX$ is predictive of $H$ (it should not be!). If it is, covariate balance is violated. Furthermore, we can define the augmented outcome $YH$ and regress $YH \sim \bX$. This provides us with an estimate of the CATE $\E[Y(1) - Y(0) \mid \bX]$.
+\end{remark}
+
+Before we leave we quickly mention that estimated propensity scores can be very close to zero or one, blowing up the estimator. Authors have suggested truncating the propensity score by
+\[
+    \hat e_i^{\mathrm{trun}}(\bX_i) = \max\lt[\alpha_L, \min\{\hat e_i(\bX_i) , \alpha_U\}\rt],
+\]
+where, for example, $\alpha_L = 0.05$ and $\alpha_U = 0.95$. This stabilizes the estimator but also changes the estimand in an arbitrary way. For a more thorough discussion we refer to \citet[Section~11.2.3]{ding2023coursecausalinference}.
+
+\subsection{Estimating the Propensity Score}
+Even though the propensity score has very desirable properties, the estimated propensity score might not. Thus, it is critical to estimate it as good as possible. In this section we follow \cite{imai2014covariate}.
+
+Typically researcher assume a parametric model on the propensity score $e(\bX_i) = \pi_\theta(\bX_i)$ where $\theta \in \Theta$. A popular choice is logistic regression
+\[
+    \pi_\theta(\bX_i) = \frac{\exp(\bX_i^\top \theta)}{1 + \exp(\bX_i^\top \theta)}.
+\]
+Often $\theta$ is estimated via the maximum likelihood approach, i.e., maximizing the log-likelihood $\hat \theta = \argmax_{\theta} l(\theta)$ with
+\[
+    l(\theta) = \argmax_{\theta} \sum_{i=1}^n T_i \log(\pi_\theta(\bX_i)) - (1 - T_i) \log(1 - \pi_\theta(\bX_i)).
+\]
+Equivalently we could solve for $\theta$ in
+\begin{equation}\label{eq:balancing_ps}
+    \frac{\partial}{\partial \theta} l(\theta) = \frac{1}{n} \sum_{i=1}^n \lt(\frac{T_i}{\pi_\theta(\bX_i)} - \frac{1 - T_i}{1 - \pi_\theta(\bX_i)} \rt) \pi_\theta^\prime(\bX_i) = 0,
+\end{equation}
+where $\pi_\theta^\prime(\bX_i) = \frac{\partial}{\partial \theta} \pi_\theta(\bX_i)$. Assuming for a moment that $\pi_\theta(\bX_i) = e(\bX_i)$ holds then the population version of the above condition yields
+\[
+    \E\lt[\frac{T_i}{\pi_\theta(\bX_i)}  \pi_\theta^\prime(\bX_i)\rt] = \E\lt[\frac{1 - T_i}{1 - \pi_\theta(\bX_i)} \pi_\theta^\prime(\bX_i) \rt] = \E[\pi_\theta^\prime(\bX_i)],
+\]
+where the last equation follows from the balancing properties of the propensity score. Thus, Equation~\eqref{eq:balancing_ps} can be interpreted as \emph{balancing} $\pi_\theta^\prime(\bX_i)$.
+
+Instead of balancing $\pi_\theta^\prime(\bX_i)$ which feels arbitrary \citet{imai2014covariate} propose to balance for a general function $f(\bX)$,
+\[
+ \E\lt[\frac{T_i}{\pi_\theta(\bX_i)}  \pi_\theta^\prime(\bX_i)\rt] = \E\lt[\frac{1 - T_i}{1 - \pi_\theta(\bX_i)} \pi_\theta^\prime(\bX_i) \rt] = \E[f(\bX_i)],   
+\]
+and estimating this via solving the sample analogue
+\[
+    \frac{1}{n} \sum_{i=1}^n \lt(\frac{T_i}{\pi_\theta(\bX_i)} - \frac{1 - T_i}{1 - \pi_\theta(\bX_i)} \rt) f(\bX_i) = 0.
+\]
+Typical choices include $f(\bX_i) = [\bX_i, \bX_i^2, \ldots, \bX_i^k]$, i.e., balancing the first $k$ moments. This is motivated by the fact that the moments determine the moment generating function and thus the distribution. In practice, balancing all moments in infeasible (infinity many, even for $k > 1$ overdetermined system) and so searchers typically set $k=1, 2$. The authors call this procedure covariate balancing propensity score or CBPS for short.
+
+However, this begs the question, what is the optimal $f$ to balance for? In \citet{fan2022optimal} the authors show that the optimal $f$ is given by
+\[
+    f(\bX_i) = e(\bX_i) \mu_0(\bX_i) + (1 - e(\bX_i)) \mu_1(\bX_i),
+\]
+where $\mu_t(\bx) = \E[Y \mid T=t, \bX=\bx]$ is the outcome function. Unfortunately, $f$ depends on the unknown propensity score (which we want to estimate in the first place) and the unknown outcome function. \citet{fan2022optimal} propose an estimation procedure circumventing this problem based on method of moments, called optimal CBPS (oCBPS).
+
+\subsection{Asymptotic Normality}
+\begin{theorem}[\cite{fan2022optimal} Theorem~3.2, Asymptotic Normality of the IPW via oCBPS]
+    Assume that the propensity score is estimated via oCBPS. Under i.i.d. sampling, \emph{SUTVA}, \emph{Unconfoundedness} and \emph{Overlap} we have 
+    \[
+        \sqrt{n}(\hat \tau_{\ATE}^{\mathrm{ht}} - \ATE ) \indist \mathcal{N}(0, \sigma^2).
+    \]
+    The limiting variance is optimal, see \cite{fan2022optimal} for details.
+\end{theorem}
+\noindent
+We emphasize that other estimating procedures also yield a central limit theorem.
+Often we simply estimate the variance and confidence interval via bootstrapping.
+
+\section{Double Robust Estimation}
+
+\subsection{Constructing the Estimator}
+
+So far we have seen two distinct ways to characterize  and estimate the $\ATE$ under the usual assumptions.
+
+\paragraph{Regression Approach.}
+\[
+    \ATE = \E[Y(1) - Y(0)] = \E[[Y \mid T = 1, \bX]] - \E[[Y \mid T = 0, \bX]] = \E[\mu_1(\bX)] - \E[\mu_0(\bX)]. 
+\]
+This gives rise to the regression estimator
+\[
+    \hat \tau_{\mathrm{ATE}}^{\mathrm{reg}} = \frac{1}{n} \sum_{i=1}^n \hat \mu_1(\bX_i) - \hat \mu_0(\bX_i).
+\]
+This requires estimating $\hat \mu_t(\bx)$.
+
+\paragraph{Weighting Approach.}
+\[
+    \ATE = \E[Y(1) - Y(0)] = \E\lt[\frac{T Y}{e(\bX)} - \frac{(1 - T) Y}{1 - e(\bX)}\rt],
+\]
+with estimator
+\[
+    \hat \tau_{\ATE}^{\mathrm{ht}} = \frac{1}{n} \sum_{i=1}^n \frac{T_i Y_i}{\hat e(\bX_i)} - \frac{1}{n}\sum_{i=1}^n \frac{(1 - T_i) Y_i}{1 - \hat e(\bX_i)},
+\]
+which requires estimating $\hat e(\bx)$.
+
+It is natural to ask whether we can combine both strategies. This is indeed the case and gives rise to the augmented inverse probability weighting (AIPW) estimator \citep{robins1994estimation}
+\begin{align*}
+     \hat \tau_{\ATE}^{\mathrm{AIPW}} &=  \frac{1}{n} \sum_{i=1}^n \lt(\hat \mu_1(\bX_i)  + \frac{T_i (Y_i - \hat \mu_1(\bx))}{\hat e(\bX_i)}\rt) - \frac{1}{n}\sum_{i=1}^n \lt(\hat \mu_0(\bX_i) + \frac{(1 - T_i) (Y_i - \hat \mu_0(\bx))}{1 - \hat e(\bX_i)}\rt)
+     \\
+     % &= \frac{1}{n} \sum_{i=1}^n \lt(\hat \mu_1(\bX_i) - \hat \hat \mu_0(\bX_i)\rt) + \lt(\frac{T_i (Y_i - \hat \mu_1(\bX_i))}{\hat e(\bX_i)}- \frac{(1 - T_i) (Y_i - \hat \mu_0(\bX_i))}{1 - \hat e(\bX_i)}\rt)
+     % \\
+     &= \underbrace{\frac{1}{n} \sum_{i=1}^n \lt(\hat \mu_1(\bX_i) - \hat \mu_0(\bX_i)\rt)}_{\hat \tau_{\mathrm{ATE}}^{\mathrm{reg}}} + \underbrace{\frac{1}{n} \sum_{i=1}^n \lt(\frac{T_i (Y_i - \hat \mu_1(\bX_i))}{\hat e(\bX_i)}- \frac{(1 - T_i) (Y_i - \hat \mu_0(\bX_i))}{1 - \hat e(\bX_i)}\rt)}_{\approx \text{mean-zero noise}}
+     \\
+     &= \underbrace{\frac{1}{n} \sum_{i=1}^n \lt(\frac{T_i Y_i}{\hat e(\bX_i)} -  \frac{(1 - T_i) Y_i}{1 - \hat e(\bX_i)}\rt)}_{\hat \tau_{\mathrm{ATE}}^{\mathrm{ht}}} + \underbrace{\frac{1}{n} \sum_{i=1}^n \lt(\hat \mu_1(\bX_i) \lt(1 - \frac{T_i}{\hat e(\bX_i)}\rt) - \hat \mu_0(\bX_i) \lt(1 - \frac{1 - T_i}{1 - \hat e(\bX_i)}\rt) \rt)}_{\approx \text{mean-zero noise}}
+\end{align*}
+
+% \textcolor{blue}{Intuition: Replace $Y_i^\prime(t) = Y_i(t) - \mu_t(\bX_i)$ then $\E[Y_i^\prime(1) - Y_i^\prime(0)] = \E[Y_i(1) - Y_i(0)] - \E[\mu_1(\bX_i) - \mu_0(\bX_i)] = 0$. Thus the second equation is just $\hat \tau_{\mathrm{ATE}}^{\mathrm{reg}}$ with the IPW for $Y_i^\prime(t)$ which has mean zero. This only requires $\mu_t(\bX_i)$ correctly specified. For the last equation if $\hat e$ is correctly specified then the first term is just $\hat \tau_{\mathrm{ATE}}^{\mathrm{ht}}$ and the second term also has mean zero by LIE.}
+
+It is very easy to verify that if we replace $\hat e$ and $\hat \mu_t$ with their respective estimand that $\E\lt[\hat \tau_{\ATE}^{\mathrm{AIPW}}\rt] = \ATE$. What is much more surprising is that we only need \emph{one} of them to be correct for unbiasedness to hold. This is called \emph{double robustness} and gives us two tries to estimate the correct model. The next result formalizes this claim.
+
+% Before we prove this claim, assume that the true outcome model and true propensity score can be characterized by parametric models such that there exists parameters $\alpha^\ast, \beta_0^\ast, \beta_1^\ast$ with $e(\alpha^\ast, \bx) = e(\bx)$ and $\mu_t(\beta_t^\ast, \bx) = \mu_t(\bx)$. We then estimate $\hat e(\bx) = e(\hat \alpha, \bx)$ and $\hat \mu_t = \mu_t(\hat \beta_t, \bx)$.
+\begin{theorem}[Double Robustness of the AIPW]
+Assuming i.i.d. sampling, \emph{SUTVA}, \emph{Unconfoundedness} and \emph{Overlap}. If either the propensity score is correctly specified, i.e. $\hat e(\bx) = e(\bx)$, or the outcome model is correctly specified, i.e., $\hat \mu_t = \mu_t$ for $t = 0, 1$, then
+\[
+   \E\lt[\hat \tau_{\ATE}^{\mathrm{AIPW}}\rt] = \ATE.
+\]
+Thus if either model is consistent, $\hat \tau_{\ATE}^{\mathrm{AIPW}}$ is a consistent estimator.
+\end{theorem}
+
+\begin{proof}
+    We follow the proof of \citet[Theorem~12.1]{ding2023coursecausalinference}. We only show that 
+    \[
+        \E\lt[\hat \mu_1(\bX_i)  + \frac{T_i (Y_i - \hat \mu_1(\bx))}{\hat e(\bX_i)}\rt] = \E[Y_i(1)].
+    \]
+    The proof for $\E[Y(0)]$ works similarly.
+    \begin{align*}
+        & \quad\E\lt[\hat \mu_1(\bX_i)  + \frac{T_i (Y_i - \hat \mu_1(\bx))}{\hat e(\bX_i)}\rt] - \E[Y(1)] 
+        \\
+        &= \E\lt[\frac{T_i (Y_i(1) - \hat \mu_1(\bx))}{\hat e(\bX_i)} - \lt(Y(1) - \hat \mu_1(\bX_i)\rt)\rt]
+        \\
+        &= \E\lt[\lt(\frac{T_i}{\hat e(\bX_i)} - 1 \rt) \times  \lt(Y_i(1) - \hat \mu_1(\bX_i)\rt)\rt]
+        \\
+        &= \E\lt[\lt(\frac{T_i - \hat e(\bX_i)}{\hat e(\bX_i)} \rt) \times  \lt(Y_i(1) - \hat \mu_1(\bX_i)\rt)\rt]
+        \\
+        &= \E\lt[\E\lt[\lt(\frac{T_i - \hat e(\bX_i)}{\hat e(\bX_i)} \rt) \times  \lt(Y_i(1) - \hat \mu_1(\bX_i)\rt)\rt] \mid \bX \rt] \qquad \text{(LIE)}
+        \\
+        &= \E\lt[\E\lt[\frac{T_i - \hat e(\bX_i)}{\hat e(\bX_i)} \mid \bX_i \rt] \times  \lt(\E[Y(1) \mid \bX] - \hat \mu_1(\bX_i)\rt)\rt] \qquad \text{(unconfoundedness)}
+        \\
+        &= \E\lt[\lt(\frac{e(\bX_i) - \hat e(\bX_i)}{\hat e(\bX_i)}\rt)  \times  \lt(\mu_1(\bX_i) - \hat \mu_1(\bX_i)\rt)\rt].
+    \end{align*}
+    This equates to zero if either $\hat e(\bx) = e(\bx)$ or $\hat \mu_1(\bx) = \mu_1(\bx)$.
+\end{proof}
+
+
+\subsection{Asymptotic Properties}
+The AIPW estimator is not only robust, but also semi-parametric efficient, which very roughly translates to achieving the minimal asymptotic variance.
+\begin{theorem}
+    Assume that $\hat e$ and $\hat \mu$ are consistent and jointly well estimated, i.e.
+    \[
+        \|\hat e - e\| \times \|\hat \mu_t - \mu\| = o_{\mathbb{P}}\lt(\frac{1}{\sqrt{n}}\rt).
+    \]
+    Under i.i.d. sampling, \emph{SUTVA}, \emph{Unconfoundedness} and \emph{Overlap} we have 
+    \[
+        \sqrt{n}(\hat \tau_{\ATE}^{\mathrm{AIPW}} - \ATE ) \indist \mathcal{N}(0, \sigma^2),
+    \]
+    where $\sigma^2 = \E[\psi_i^2]$ with
+    \[
+    \psi_i = \lt(\mu_1(\bX_i) - \mu_0(\bX_i)\rt) + \lt(\frac{T_i (Y_i - \mu_1(\bX_i))}{ e(\bX_i)}- \frac{(1 - T_i) (Y_i - \mu_0(\bX_i))}{1 -  e(\bX_i)}\rt) - \ATE.
+    \]
+\end{theorem}
+\noindent
+Note that the variance can be easily estimated by
+\[
+    \hat \sigma_n^2 = \frac{1}{n} \sum_{i=1}^n \hat \psi_i^2,
+\]
+where 
+\[
+    \hat \psi = \lt(\hat \mu_1(\bX_i) - \hat \mu_0(\bX_i)\rt) + \lt(\frac{T_i (Y_i - \hat \mu_1(\bX_i))}{\hat e(\bX_i)}- \frac{(1 - T_i) (Y_i - \hat \mu_0(\bX_i))}{1 - \hat e(\bX_i)}\rt) - \hat \tau_{\ATE}^{\mathrm{AIPW}}.
+\]
+This only requires estimating quantities we already obtained. Note that $\psi$ is also called the \emph{efficient influence function}.
+\endgroup
+
+\newpage
+
+\bibliography{references}
+
+
+\end{document}

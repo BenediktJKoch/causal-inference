@@ -1,0 +1,305 @@
+\documentclass[11pt]{exam}
+\usepackage{style/preamble}
+\newcommand{\name}{Section 9: Matching}
+
+
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+
+\section{Matching}
+\subsection{Motivation}
+We are interested in estimating the $\ATE$ or the $\ATT$. We have seen in the previous section that given an i.i.d sampling, \emph{SUTVA}, \emph{Unconfoundedness} and \emph{Overlap}, we can identify the $\ATE$,
+\begin{align*}
+    \E[Y_i(1) - Y_i(0)] &= \E[\mu_1(\bX_i)] - \E[\mu_0(\bX_i)]
+\end{align*}
+where $\mu_t(\bx_i) = \E[Y_i \mid T_i = t, \bX_i = \bx_i]$. Similarly, under the same assumptions we identify the $\ATT$,
+\begin{align*}
+    \E[Y_i(1) - Y_i(0) \mid T_i = 1] &= \E[Y_i(1)  \mid T_i = 1] - \E[Y_i(0) \mid T_i = 1]
+    \\
+    &= \E[Y_i  \mid T_i = 1] - \E[\E[Y_i(0) \mid T_i = 1, \bX_i] \mid T_i = 1]  \qquad \text{(SUTVA, Law of Iterated Expectation)}
+    \\
+    &= \E[Y_i  \mid T_i = 1] - \E[\E[Y_i(0) \mid \bX_i] \mid T_i = 1]  \qquad \text{(Unconfoundedness)}
+    \\
+    &= \E[Y_i  \mid T_i = 1] - \E[\E[Y_i(0) \mid T_i = 0, \bX_i] \mid T_i = 1]  \qquad \text{(Unconfoundedness)}
+    \\
+    &= \E[Y_i  \mid T_i = 1] - \E[\E[Y_i \mid T_i = 0, \bX_i] \mid T_i = 1]  \qquad \text{(SUTVA)}
+    \\
+    &= \E[Y_i  \mid T_i = 1] - \E[\mu_0(\bX_i) \mid T_i = 1].
+\end{align*}
+This identification strategy suggests estimating $\hat \mu_t$ and then forming the regression estimators
+\begin{align*}
+    \hat \tau^{\mathrm{reg}}_{\ATE} &= \frac{1}{n} \sum_{i=1}^n \hat \mu_1(\bX_i) - \hat \mu_0(\bX_i),
+    \\
+    \hat \tau^\mathrm{reg}_{\ATT} &= \frac{1}{n_1} \sum_{i=1}^n  T_i (Y_i - \hat \mu_0(\bX_i)).
+\end{align*}
+However, $\hat \mu_t$ depends on the model we chose to estimate it with, which usually requires assumptions (e.g., linearity for linear regression). This can severely \emph{bias} our analysis, if the model is not correctly specified, which we will never truly know. Matching can be a solution to this problem. It is a non-parametric technique aiming to reduce model dependence.
+
+\subsection{Idea}
+
+Matching imputes each unit’s missing potential outcome using similar units from the opposite treatment group. If unit $i$ is treated, so that $Y_i = Y_i(1)$, we aim find a control unit $m(i)$ such that $\bX_i = \bX_{m(i)}$ and compare $Y_i - Y_{m(i)}$. If our covariates are sufficiently rich then it is like we are comparing the same unit under different treatment. If we can find these exact \emph{matches}, then we can estimate the $\ATT$ by
+\[
+     \hat \tau^\mathrm{m}_{\ATT} = \frac{1}{n_1} \sum_{i=1}^n  T_i (Y_i - Y_{m(i)}).
+\]
+Often we try to find multiple units $\mathcal{M}_i := \{m_1(i), \ldots, m_{M_i}(i)\}$ such that $\bX_i = \bX_{m_j(i)}$. This yields the estimator
+\[
+ \hat \tau^\mathrm{m}_{\ATT} = \frac{1}{n_1} \sum_{i=1}^n  T_i \left(Y_i - \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j \right).
+\]
+\begin{lemma}
+    Under exact matching, $\hat \tau^\mathrm{m}_{\ATT}$ is unbiased.
+\end{lemma}
+\begin{proof}
+    Note that $\mathcal{M}_i$ is a deterministic function of $\{\bX_1, \ldots, \bX_n, T_1, \ldots, T_n\}$ and that for $j \in \mathcal{M}_i$ we have $T_j = 0$ and $\bX_j = \bX_i$.
+    \begin{align*}
+        \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j\rt] &= \E\lt[T_i \E\lt[\frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n\rt] \rt] \qquad \text{(LIE)}
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \E\lt[Y_j \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n\rt] \rt]
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \E\lt[Y_j \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n\rt] \rt]
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \E\lt[Y_j \mid \bX_j, T_j\rt] \rt] \qquad \text{(SUTVA)}
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \E\lt[Y_j \mid \bX_j, T_j = 0\rt] \rt] \qquad j \in \mathcal{M}_i, T_j = 0
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \mu_0(\bX_j) \rt] \qquad \text{(i.i.d.)}
+        \\
+        &= \E\lt[T_i \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} \mu_0(\bX_i) \rt] \qquad \qquad j \in \mathcal{M}_i, \bX_j = \bX_i
+        \\
+        &= \E\lt[T_i \mu_0(\bX_i) \rt] 
+        \\
+        &= \E[\mu_0(\bX_i) \mid T_i = 1] \Pr(T_i = 1)
+        \\
+        &= \E[\mu_0(\bX_i) \mid T_i = 1] \frac{n_1}{n}.
+    \end{align*}
+ The remainder of the proof follows by the usual arguments.
+\end{proof}
+
+However, in practice, exact matches may not be possible. In this case, we might want to match treated unit $i$ to $M_i$ many control units $\mathcal{M}_i := \{m_1(i), \ldots, m_{M_i}(i)\}$, where $m_j(i)$ defines the $j$-th \emph{closest} control match to unit $i$. We will define closeness later on. It is important to note that $\mathcal{M}_i = \mathcal{M}_i(\bX_1, \ldots, \bX_n, T_1, \ldots, T_n)$ is a function of all covariates and treatments and for $j \in \mathcal{M}_i$ we have $T_j = 1 - T_i$, as well as $\bX_j \approx \bX_j$ (if matching was done well).
+
+Before we continue, we also define the matching estimator for the $\ATE$. Let
+\[
+    \hat Y_i(0) = \begin{cases}
+        Y_i \qquad &\text{if } T_i = 0
+        \\
+        \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j &\text{if } T_i = 1,
+    \end{cases} 
+    \qquad 
+    \hat Y_i(1) = \begin{cases}
+        \frac{1}{M_i} \sum_{j \in \mathcal{M}_i} Y_j \qquad &\text{if } T_i = 0
+        \\
+        Y_i &\text{if } T_i = 1,
+    \end{cases}
+\]
+where now $\mathcal{M}_i$ denotes the set of indices of the first $M_i$ closest matches for unit $i$ in the opposite treatment group. We set 
+\[
+     \hat \tau^\mathrm{m}_{\ATE} = \frac{1}{n} \sum_{i=1}^n \hat Y_i(1) - \hat Y_i(0).
+\]
+Let the weight $w_i = 1 + \sum_{j=1}^n \frac{1}{M_j}\indicator{i \in \mathcal{M}_j}$ express how often unit $i$ was matched (one time by itself plus the average times from being matched with others). Then we can express the estimator in its equivalent form as a weighting estimator
+\[
+    \hat \tau^\mathrm{m}_{\ATE} = \frac{1}{n} \sum_{i=1}^n (2T_i - 1) w_i Y_i.
+\]
+
+\subsection{Matching Methods}
+We briefly discuss a non-exhaustive list of matching methods.
+\begin{enumerate}
+    \item \textbf{Exact Matching}: For each unit $i$ we find the exact match $m(i)$ in the opposite treatment group such that $\bX_i = \bX_{m(i)}$. This is ideal, but usually only works with low-dimensional discrete covariates and a large sample.
+    \item \textbf{Coarsened Exact Matching}: Discretize continuous covariates and match on them. Often good enough as long as discrete categories have substantive meanings. Fails to work for high-dimensional covariates. May leave some units unmatched, which changes the estimand. Inherent bias-variance tradeoff: the coarser the categories, the larger the bias, but the smaller the variance.
+    \item \textbf{Distance Matching}:
+    Define a distance measure $d: \mathcal{X} \times \mathcal{X} \to \R$ and set 
+    \[
+    m(i) = \argmin_{j: T_j = 1 - T_i} d(\bX_i, \bX_j).
+    \]
+    The idea is that $\bX_{m(i)} \approx \bX_i$ or $\bX_i - \bX_{m(i)}$ is small, leading to approximate matches. This can be generalized to the closest $M$ matches. Canonical distance choices
+    \begin{itemize}
+        \item Euclidean distance: $d(\bX_i, \bX_j) = (\bX_i - \bX_j)^\top (\bX_i - \bX_j)$
+        \item Mahalanobis distance: $d(\bX_i, \bX_j) = (\bX_i - \bX_j)^\top \bm{A}^{-1}(\bX_i - \bX_j)$, where $\bA^{-1}$ is often chose as ${\widehat \Sigma}^{-1} = \lt(\frac{1}{n} \sum_{i=1}^n (\bX_i - \overline{\bX}) (\bX_i - \overline{\bX})^\top\rt)^{-1}$ the inverse of the sample covariance matrix of the covariates.
+        \item (Estimated) Propensity score: $d(\bX_i, \bX_j) = |\hat e(\bX_i) - \hat e(\bX_j)|$ or $|\mathrm{logit}(\hat e(\bX_i)) - \mathrm{logit}(\hat e(\bX_j))|$ . This is motivated by the propensity score being a balancing score and thus, in theory, an optimal one-dimensional summary. However, since the propensity score must be estimated it looses its desired properties. Thus, it is often advised not to use the propensity score for matching, see \citet{king2019propensity} for a discussion.
+    \end{itemize}
+    \item \textbf{Optimal Matching}: Some procedures approach matching from an optimization perspective. We refer the reader to \citet{rosenbaum1989optimal, zubizarreta2014matching} for examples.
+\end{enumerate}
+
+\subsubsection{One-to-one or One-to-M matching}
+In matching, we need to decide on the number of matches $M$ we match a unit with. This reflects a bias-variance tradeoff. If we choose $M=1$ (one-to-one matching) we will have the smallest bias, but potentially high variance. The larger $M$ the greater the bias, but the smaller the variance. However, with \emph{bias}-correction methods (see later section), we can mitigate that issue.
+
+\subsubsection{Matching with vs. without Replacement}
+Matching with replacement is computationally convenient and often yields higher-quality matches, but it induces dependence by reusing units. Matching without replacement avoids reuse (simplifying some analyses), but can be computationally harder (involves discrete optimization) and may force worse matches under limited overlap.
+See the discussion in \citet[Chapter 15.2]{ding2023coursecausalinference}. Note that in the case of $\hat \tau^\mathrm{m}_{\ATE}$ matching with replacement would still lead to dependence.
+
+\subsubsection{Matching as Preprocessing}
+At least for the $\ATT$ (or ATC) matching can be seen as a pre-processing step. Indeed, assume we have small sample of treated units and a large sample of control units, then we select the control units which are most similar to the treated units. Of course, this trims the sample of control units. Thus matching usually reduces the effective sample size and thus lowers statistical power.
+
+\subsection{Covariate Balance}
+A key goal in matching is \emph{covariate balance}, which refers to treated and control units having the same distribution of observed covariates in the matched sample. In mathematical terms
+\[
+    \bX \mid T = 1 \sim \bX \mid T = 0, 
+\]
+i.e., the marginal covariate distributions are the same between treatment groups. Equivalently, $\bX \ind T$. This might break if there is no sufficient overlap between treated and control units.
+In the $\ATT$ example, if the matched control distribution doesn't reproduce the treated distribution then we cannot correctly recover $\E[\mu_0(\bX_i) \mid T_i = 1]$. 
+Surprisingly, as long as we can achieve covariate balance, individual matches can be quite terrible. Indeed, recall (set $M_i \equiv M$)
+\[
+    \hat \tau^\mathrm{m}_{\ATT} = \frac{1}{n_1} \sum_{i=1}^n  T_i \left(Y_i - \frac{1}{M} \sum_{j \in \mathcal{M}_i} Y_j \right) = \frac{1}{n_1} \sum_{i=1}^n  T_i Y_i - \frac{1}{n_1 M} \sum_{i=1}^n \sum_{j \in \mathcal{M}_i} T_i Y_j.
+\]
+We only really care about the distribution of the matches on the right. As we sum across them it does not really matter which control unit was matched to a specific treated unit. Thus, individual matches can be completely decoupled, as long as balance is achieved.
+
+
+\subsubsection{Checking Covariate Balance}
+Ideally, we would compare the entire distribution of covariates in treatment with control. However, when $\bX$ is high-dimensional, this is often infeasible. In practice, we check low-dimensional summaries, discussed below. We report these summaries before and after matching. In the following, we assume we matched for the $\ATE$. For the $\ATT$, we refer to \citet{chazal2024causalcoursenotes}.
+% \textcolor{blue}{Prior to doing any method involving estimating $\mu_t(\bx) = \E[Y \mid T = t, \bX = \bx]$ or $e_t(\bx)$ (every observational study), we should check covariate balance.}
+
+\paragraph{Standardized Mean Difference (SMD).}
+Let  $\bX \in \R^p$, for $k = 1, \ldots, p$ define
+\[
+\mathrm{SMD}_k
+= \frac{\bar X_{k1}-\bar X_{k0}}{\sqrt{S_K^2}}.
+\]
+where
+\begin{itemize}
+    \item $w_i = 1 + \sum_{j=1}^n \frac{1}{M_j}\indicator{i \in \mathcal{M}_j}$ (weight associated to unit $i$).
+    \item $N_t = \sum_{i:T_i = t} w_i$ (weights in group $t$)
+    \item $\bar X_{kt} = \frac{1}{N_t} \sum_{i: T_i = t} w_i X_{ki}$  (weighted average),  
+    \item $S_{k}^2 =  \frac{1}{n-1} \sum_{i = 1}^n (X_{ki} - \bar X_{k})^2$ with $\bar X_k = \frac{1}{n} \sum_{i=1}^n X_i$(unweighted, pooled variance over the entire distribution of $X$, as we don't want the denominator to vary to make before and after matching comparable). 
+    %$S_{kt}^2 =  \frac{1}{N_t} \sum_{i: T_i = t} w_i (X_{ki} - \bar X_{kt})^2 $ (weighted variance).
+\end{itemize}
+Note that before matching, $w_i \equiv 1$. For one-to-one matching $w_i \in \{0, 1\}$.
+\emph{Rules of thumb:} $|\mathrm{SMD}_k|\le 0.10$ (good); $\le 0.20$ (acceptable).
+
+% Note that we prefer $\mathrm{SMD}$ instead of the t-test
+% \[
+% t_k
+% = \frac{\bar X_{k1}-\bar X_{k0}}{\sqrt{S_{k0}^2/N_0 + S_{k1}^2/N_1}},
+% \]
+% as SMD provides a scale-free measure of the
+% difference in the location of the two distributions, and is useful
+% for assessing the degree of difficulty in adjusting for differences
+% in covariates \citep{abadie2011bias}.
+
+\paragraph{Variance Ratio (VR).}
+Define
+\[
+\mathrm{VR}_k=\frac{S_{k1}^2}{S_{k0}^2}.
+\]
+Target $\mathrm{VR}\approx 1$ (e.g., within $[0.5,2]$). Here, $S_{kt}^2 =  \frac{1}{N_t} \sum_{i: T_i = t} w_i (X_{ki} - \bar X_{kt})^2 $ (weighted variance).
+
+\paragraph{Distributional Checks.}
+Compare full distributions via empirical CDF, QQ-Plots, or histograms.Can include tests such as the Kolmogorov-Smirnov test.
+
+\paragraph{Propensity-Score Diagnostics.}
+After matching, treated and control propensity-score distributions should overlap
+closely; the SMD of the propensity score itself should be small.
+
+\paragraph{Testing.} Equivalence test via t-statistic, see \citet{hartman2018equivalence} for details.
+\textcolor{blue}{Preferred method, TODO}
+
+\cite{hartman2018equivalence} argues that unconfoundedness implies that the distributions of the potential outcomes for both treatment and control are identical (conditional on $\bX$),
+\[
+ \{Y(0), Y(1)\} \mid T=1, \bX \sim  \{Y(0), Y(1)\} \mid T=0, \bX.
+\]
+Although we cannot directly test the distribution of the potential outcomes,
+we can test how similar the groups look on pretreatment
+covariates, called a “balance test”. Intuitive, since the potential outcomes are functions of the covariates, if the covariates look similar in treatment and control, it is evidence in favor of unconfoundedness. Mathematically, 
+\[
+    \bX \mid T = 1 \sim \bX \mid T = 0,
+\]
+or, equivalently, $X \ind T$. We will discuss this and how to test for it in detail later on.
+
+\subsection{Bias Correction}
+This section is taken from \citet{abadie2011bias}. We focus on the $\ATE$ and the case $M_i \equiv M$. Recall the matching estimator
+\[
+     \hat \tau^\mathrm{m}_{\ATE} = \frac{1}{n} \sum_{i=1}^n \hat Y_i(1) - \hat Y_i(0) = \frac{1}{n} \sum_{i=1}^n (2T_i - 1) w_i Y_i.
+\]
+where $w_i = 1 + \frac{1}{M}\sum_{j=1}^n \indicator{i \in \mathcal{M}_j}$. It turns out, that this estimator is biased. 
+\begin{lemma}
+    We have
+    \[
+        \E[\hat \tau^\mathrm{m}_{\ATE} - \ATE \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] = \frac{1}{n} \sum_{i=1}^n \frac{2T_i - 1}{M} \sum_{j \in \mathcal{M}_i} \lt(\mu_{1- T_i}(\bX_i) - \mu_{1- T_i}(\bX_j)\rt).
+    \]
+\end{lemma}
+We make the following observations.
+\begin{itemize}
+    \item The bias term does not cancel even if we take its expectation. This is in part due to $\mathcal{M}_i = \mathcal{M}_i(\bX_1, \ldots, \bX_n, T_1, \ldots, T_n)$ being a function of all covariates and treatments.
+    \item Under exact matching, $\bX_j = \bX_i$ for $j \in \mathcal{M}_i$ and the bias is zero.
+    \item The bias term illustrates the bias-variance tradeoff. For $M=1$ we only use the best match such that $\bX_j \approx \bX_i$, $j \in \mathcal{M}_i$ (hopefully). But matching only one observation is noisy. However, if $M$ is large, then we have a lot of samples and thus the variance of the average decreases, but our matches will be worse, which will introduce more bias.
+\end{itemize}
+
+\begin{proof}
+    First note that 
+    \[
+     \E[ \hat Y_i(1) - \hat Y_i(0) - (Y_i(1) - Y_i(0)) \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] =  \E[ \hat Y_i(1) - \hat Y_i(0)\mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] - (\mu_1(\bX_1) - \mu_0(\bX_i)).
+    \]
+    To evaluate the first term, we separate two cases.  
+    
+    \textbf{Case 1: $T_i = 1$.} 
+    
+    Then $\hat Y_i(1) - \hat Y_i(0) = Y_i - \frac{1}{M}\sum_{j \in \mathcal{M}_i} Y_j$ and 
+    \begin{align*}
+        \E[ \hat Y_i(1) - \hat Y_i(0)\mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] &= \E\lt[Y_i - \frac{1}{M}\sum_{j \in \mathcal{M}_i} Y_j \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n\rt]
+        \\
+        &= \E\lt[Y_i(T_i) - \frac{1}{M}\sum_{j \in \mathcal{M}_i} Y_j(T_j) \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n\rt]
+        \\
+        &= \E[Y_i(T_i) \mid \bX_i, T_i] -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \E[Y_j(T_j) \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] 
+        \\
+        &= \E[Y_i(T_i) \mid \bX_i, T_i] -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \E[Y_j(T_j) \mid \bX_j, T_j] 
+        \\
+        &= \mu_{T_i}(\bX_i) -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \mu_{1 - T_i}(\bX_j)
+        \\
+        &= \mu_{1}(\bX_i) -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \mu_{0}(\bX_j)
+    \end{align*}
+    where we note that $\mathcal{M}_i$ is fixed given $(\bX, \bT)$. Then
+    \begin{align*}
+        \E[ \hat Y_i(1) - \hat Y_i(0) - (Y_i(1) - Y_i(0)) \mid\bX_1, \ldots, \bX_n, T_1, \ldots, T_n] &= \mu_{1}(\bX_i) -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \mu_{0}(\bX_j) -  (\mu_1(\bX_1) - \mu_0(\bX_i))
+        \\
+        &= \mu_0(\bX_i) -  \frac{1}{M}\sum_{j \in \mathcal{M}_i} \mu_{0}(\bX_j)
+        \\
+        &= \frac{1}{M} \sum_{j \in \mathcal{M}_i} (\mu_0(\bX_i) - \mu_0(\bX_j)).
+    \end{align*}
+
+    \textbf{Case 2: $T_i = 0$.} Similarly, we obtain,
+    \[
+        \E[ \hat Y_i(1) - \hat Y_i(0) - (Y_i(1) - Y_i(0)) \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] = - \frac{1}{M} \sum_{j \in \mathcal{M}_i} (\mu_1(\bX_i) - \mu_1(\bX_j)).
+    \]
+    Combining both cases yields
+    \[
+    \E[\hat \tau^\mathrm{m}_{\ATE} - \ATE \mid \bX_1, \ldots, \bX_n, T_1, \ldots, T_n] = \frac{1}{n} \sum_{i=1}^n \frac{2T_i - 1}{M} \sum_{j \in \mathcal{M}_i} \lt(\mu_{1- T_i}(\bX_i) - \mu_{1- T_i}(\bX_j)\rt).
+    \]
+\end{proof}
+
+This motivates estimating $\hat \mu_t$ and defining the bias correction as
+\[
+    \hat B = \frac{1}{n} \sum_{i=1}^n \frac{2T_i - 1}{M} \sum_{j \in \mathcal{M}_i} \lt(\hat \mu_{1- T_i}(\bX_i) - \hat \mu_{1- T_i}(\bX_j)\rt),
+\]
+and the bias-corrected matching estimator as
+\begin{align*}
+    \hat \tau^\mathrm{mbc}_{\ATE} &= \hat \tau^\mathrm{m}_{\ATE} - \hat B.
+\end{align*}
+
+\begin{lemma}[\citet{ding2023coursecausalinference}, Proposition~15.1]\label{lem:mbc}
+    The bias-corrected matching estimator can be written as
+    \[
+    \hat \tau^\mathrm{mbc}_{\ATE} = \frac{1}{n} \sum_{i = 1}^n \hat \psi_i,
+    \]
+    where $(\hat \mu_{1}(\bX_i) - \hat \mu_{0}(\bX_i)) + (2T_i - 1) \lt(1 + \frac{K_i}{M}\rt) (Y_i - \hat \mu_{T_i}(\bX_i))$ and $K_i = \sum_{i=1}^n\indicator{i \in \mathcal{M}_j}$, the number of times unit $i$ is used as a match. Note that $\hat \psi_i$ are not quite independent since $K_i = K_i(\bX_1, \ldots, \bX_n, T_1, \ldots, T_n)$ depends all covariates and treatments.
+\end{lemma}
+
+\begin{theorem}[\citet{abadie2011bias}, Theorem~2]
+    Assuming $\hat \mu_t$ is consistent and converges sufficiently fast to $\mu_t$, then 
+    \[
+    \frac{\sqrt{n}(\hat \tau^\mathrm{mbc}_{\ATE} - \ATE)}{\sigma_n} \indist \mathcal{N}(0, 1).
+    \]
+    For details on $\sigma^2_n$ we refer to \citet{abadie2011bias}.
+\end{theorem}
+
+\subsection{Variance Estimation}
+Lemma~\ref{lem:mbc} suggests the simple variance estimator \citep[Chapter~15.3]{ding2023coursecausalinference}
+\[
+ \hat{\sigma}_n^2 = \frac{1}{n^2} \sum_{i=1}^n (\hat \psi_i - \hat \tau^\mathrm{mbc}_{\ATE})^2.
+\]
+Generally, bootstrap is not recommended. Bootstrap only works when sampling matches (not units), and won't work for matching with replacement, which is the most common matching technique.
+
+\endgroup
+
+\newpage
+
+\bibliography{references}
+
+
+\end{document}

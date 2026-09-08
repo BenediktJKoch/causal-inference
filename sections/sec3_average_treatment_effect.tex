@@ -1,0 +1,417 @@
+\documentclass[11pt]{exam}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{enumitem} 
+\usepackage{comment}
+\usepackage{mdframed}
+%\textwidth=5.5in
+%\textheight=8.75in
+\pagestyle{headandfoot}
+\firstpageheadrule
+\runningheadrule
+\usepackage{style/header}
+\rhead{\name}
+\lhead{\class}
+\cfoot{Page~\thepage}
+
+
+\usepackage{latexsym,multirow}
+\usepackage{amssymb,amsmath,bm}
+\usepackage{graphicx}
+\usepackage[color,all,import,arrow]{xy}
+\usepackage{booktabs}
+
+%% === bibliography packages ===
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+%% === hyperref options ===
+\usepackage{xcolor}
+\usepackage[pdftex, bookmarksopen=true, bookmarksnumbered=true,
+pdfstartview=FitH, breaklinks=true, urlbordercolor={0 1 0}, citebordercolor={0 0 1}]{hyperref}
+\usepackage{colortbl}
+\usepackage{subfigure}
+\usepackage{subcaption}
+
+%% == tikz
+\usepackage{tikz}
+\usepackage{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+
+% === dcolumn package ===
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+% === theorem package ===
+\usepackage{theorem}
+\theoremstyle{plain}
+\theoremheaderfont{\scshape}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{defi}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newenvironment{proof}{\paragraph{Proof:}}{\hfill$\square$}
+
+% === some special symbols
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\qed}{\hfill \ensuremath{\Box}}
+\newcommand{\ind}{\mbox{$\perp\!\!\!\perp$}}
+\newcommand{\nind}{\mbox{$\not\perp\!\!\!\perp$}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\Yone}{Y(1)}
+\newcommand{\Yzero}{Y(0)}
+\newcommand{\ATE}{\mathrm{ATE}}
+\usepackage{booktabs,tabularx}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+
+\newcommand{\name}{Section 3: Average Treatment Effects}
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+
+\section{Overview}
+We distinguish two complementary perspectives for average treatment effects (ATEs): the finite-population (design-based) view and the super-population (model/sampling-based) view.
+
+\paragraph{Finite-population (design-based) view.}
+We fix the $n$ units in our study. By unit-level determinism (SUTVA/consistency assumed), each unit $i$ has fixed potential outcomes $\{Y_i(0),Y_i(1)\}$; the only randomness comes from the assignment mechanism. The causal estimand of interest is the \emph{sample} ATE (SATE),
+\[
+\tau_{\text{SATE}} \;=\; \frac{1}{n}\sum_{i=1}^n\bigl(Y_i(1)-Y_i(0)\bigr).
+\]
+
+\paragraph{Super-population (model-based) view.}
+We imagine the units are an i.i.d.\ sample from a large (possibly infinite) population where $(Y(1),Y(0)) \sim \mathbb{P}^\ast$ are random. Randomness comes from the treatment assignment and the sampling. The causal estimand of interest is the \emph{population} ATE (PATE)
+\[
+\tau_{\text{PATE}} \;=\; \E\!\left[Y(1)-Y(0)\right].
+\]
+
+\section{Comparison}
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\begin{tabular}{|>{\centering\arraybackslash}p{0.24\textwidth}|>{\centering\arraybackslash}p{0.35\textwidth}|>{\centering\arraybackslash}p{0.35\textwidth}|}
+\hline
+ & \textbf{Finite-Population} & \textbf{Super-Population} \\
+\hline
+\textit{Population} &
+Set of units in the study is fixed and finite &
+Units are drawn i.i.d.\ from a large or infinite ``super-population.'' \\
+\hline
+\textit{Potential Outcomes} &
+Fixed set $\mathcal{O}_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$ &
+$(Y_i(0),Y_i(1)) \text{ i.i.d.\ }\sim \mathbb{P}^{\ast}$ \\
+\hline
+\textit{Inference} &
+Treatment effects for this specific group of units &
+Treatment effects for the underlying population distribution \\
+\hline
+\textit{Source of Randomness} &
+Treatment assignment &
+\begin{tabular}{@{}c@{}}Treatment assignment \\ Sampling of units from the population
+\end{tabular} \\
+\hline
+\textit{Random Variables} &
+Treatment $T_i$ &
+Treatment and Potential Outcomes $T_i, Y_i(0), Y_i(1)$ \\
+\hline
+\textit{Example} &
+What is the ATE on these $n$ units in our experiment? &
+What is the ATE in the population from which these $n$ units were sampled? \\
+\hline
+\textit{Validity} &
+Internal &
+External \\
+\hline
+\textit{Estimand} &
+$\displaystyle \tau_{\mathrm{SATE}}=\frac{1}{n}\sum_{i=1}^n\!\big(Y_i(1)-Y_i(0)\big)$ &
+$\displaystyle \tau_{\mathrm{PATE}}=\mathbb{E}\!\left[Y(1)-Y(0)\right]$ \\
+\hline
+\textit{Estimator} & \multicolumn{2}{c|}{%
+\begin{tabular}{c}
+Difference in means \\
+$\hat\tau = \overline Y_1 - \overline Y_0$
+\end{tabular}} \\
+\hline
+\textit{Unbiasedness} &
+$\E[\hat\tau \mid \mathcal{O}_n] = \tau_{\mathrm{SATE}}$ & $\E[\hat\tau] = \tau_{\mathrm{PATE}}$
+\\
+\hline
+% main variance row
+\textit{Variance of Estimator} &
+$\displaystyle \Var(\hat\tau\mid \mathcal O_n)
+= \frac{1}{n}\!\left(\frac{n_0}{n_1}S_1^2+\frac{n_1}{n_0}S_0^2+2S_{01}\right)$
+&
+$\displaystyle \Var(\hat\tau)=\frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0}$ \\
+\hline
+% bounds row (merged across the two framework columns)
+\textit{Estimator of Variance} &
+\multicolumn{2}{c|}{%
+\begin{tabular}{c}
+$\displaystyle \widehat{\Var}(\hat\tau)=\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}$\\
+Finite-Population: Conservative estimator $\mathbb{E}[\widehat{\Var}(\hat\tau) \mid \mathcal O_n] \geq \Var(\hat\tau \mid \mathcal O_n)$, 
+\\
+equal to design variance iff $Y_i(1)-Y_i(0)=c$ for all $i$, \\
+Super-Population: Unbiased estimator $\ \mathbb{E}[\widehat{\Var}(\hat\tau)]=\Var(\hat\tau)$
+\end{tabular}} \\
+\hline
+% Conservative:\ $\displaystyle \widehat{\Var}(\hat\tau)=\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}$ \ (equal to design variance iff $Y_i(1)-Y_i(0)=c$ for all $i$) &
+% Unbiased:\ $\displaystyle \widehat{\Var}(\hat\tau)=\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}$, and $\ \mathbb{E}\{\widehat{\Var}(\hat\tau)\}=\Var(\hat\tau)$ \\
+% \hline
+\textit{Asymptotics \qquad \tiny{$\frac{n_1}{n} \to p \in (0, 1)$}} &
+\begin{tabular}{@{}c@{}}
+Finite-population CLT:\\
+$\displaystyle 
+\frac{\hat\tau - \tau_{\mathrm{SATE}}}
+{\sqrt{\tfrac{1}{n}\!\left(\tfrac{n_0}{n_1}S_1^2+\tfrac{n_1}{n_0}S_0^2+2S_{01}\right)}}
+\;\xrightarrow{d}\; \mathcal{N}(0,1)$
+\end{tabular}
+&
+\begin{tabular}{@{}c@{}}
+Super-population LLN and CLT:\\
+Consistency (LLN): $\hat\tau \xrightarrow{p} \tau_{\mathrm{PATE}}$\\
+CLT: $\displaystyle 
+\frac{\hat\tau - \tau_{\mathrm{PATE}}}
+{\sqrt{\tfrac{\sigma_1^2}{n_1}+\tfrac{\sigma_0^2}{n_0}}}
+\;\xrightarrow{d}\; \mathcal{N}(0,1)$
+\end{tabular} \\
+\hline
+\textit{CI in practice} & \multicolumn{2}{c|}{%
+\begin{tabular}{c}
+$\displaystyle \text{s.e.}=\sqrt{\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}}$\\
+$\displaystyle (1-\alpha)\times 100\%\ \text{CI: }\big[\hat\tau \pm z_{1-\alpha/2}\cdot \text{s.e.}\big]$
+\\
+Conservative in finite-population; Unbiased in super-population
+\end{tabular}} \\
+\hline
+\end{tabular}
+
+\vspace{0.5em}
+\noindent\small\textbf{Assumptions}
+\\
+The Table is valid under SUTVA and a completely randomized design (CRD).
+
+\noindent\small\textbf{Notation}
+\[
+\begin{aligned}
+&n_1=\sum_{i=1}^n T_i,\quad n_0=n-n_1\\
+&\overline{Y(t)} =\frac{1}{n}\sum_{i=1}^n Y_i(t), \qquad \overline Y_t=\frac{1}{n_t}\sum_{i:T_i=t}Y_i, \\
+&S_t^2=\frac{1}{n-1}\sum_{i=1}^n\big(Y_i(t)-\overline{Y(t)}\big)^2,\quad 
+S_{01}=\frac{1}{n-1}\sum_{i=1}^n\!\big(Y_i(1)-\overline{Y(1)}\big)\big(Y_i(0)-\overline{Y(0)}\big),\\
+&\sigma_t^2=\Var\!\big(Y_i(t)\big) = \E[S_t^2],\qquad \hat\sigma_t^2=\frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline Y_t\big)^2.\\
+\end{aligned}
+\]
+
+\noindent\small\textbf{Finite-Population Bounds for the Variance using Cauchy Schwarz}
+
+Since $S_{01}$ is unobserved, we can obtain these (tight without further assumptions) bounds on the variance for the $\tau_{\mathrm{SATE}}$
+\[
+\displaystyle \frac{n_0n_1}{n}\!\left(\frac{S_1}{n_1}-\frac{S_0}{n_0}\right)^{\!2}
+\le \Var(\hat\tau\mid \mathcal O_n) \le
+\frac{n_0n_1}{n}\!\left(\frac{S_1}{n_1}+\frac{S_0}{n_0}\right)^{\!2}
+\]
+\end{table}
+
+\newpage
+\section{Results}
+\begin{lemma}[Unbiasedness of the difference-in-means estimator]
+\label{lem:unbiasedness}
+Let $\hat\tau=\overline Y_1-\overline Y_0$, where $\overline Y_t=\frac{1}{n_t}\sum_{i:T_i=t}Y_i$ and $n_t=\sum_{i=1}^n\mathbf 1\{T_i=t\}$.
+\begin{enumerate}[label=(\roman*)]
+    \item (\textbf{Finite population / SATE}) Under a completely randomized design (CDR) with fixed $n_1$ and $n_0$, conditioning on the fixed potential outcomes $\mathcal O_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$,
+    \[
+    \mathbb{E}\!\left[\hat\tau\mid \mathcal O_n\right] \;=\; \tau_{\mathrm{SATE}}
+    \;=\; \frac{1}{n}\sum_{i=1}^n\big(Y_i(1)-Y_i(0)\big).
+    \]
+    \item (\textbf{Super-population / PATE}) If, in addition, the $n$ units are drawn as an i.i.d.\ simple random sample from a population where $(Y(1),Y(0))$ are random, then
+    \[
+    \mathbb{E}\!\left[\hat\tau\right] \;=\; \tau_{\mathrm{PATE}}
+    \;=\; \mathbb{E}\!\big[Y(1)-Y(0)\big].
+    \]
+\end{enumerate}
+\end{lemma}
+
+\begin{remark}
+    We also have that $\E[\hat\sigma_t^2] = \sigma_t^2$ by the usual unbiasdness of the sample variance.
+\end{remark}
+
+\begin{proof}
+(i) \emph{Finite population.} Using linearity of expectation and the fact that the potential outcomes are fixed given $\mathcal O_n$,
+\[
+\mathbb{E}\!\left[\overline Y_1\mid \mathcal O_n\right]
+= \mathbb{E}\!\left[\frac{1}{n_1}\sum_{i=1}^n T_i\,Y_i(1)\,\Big|\, \mathcal O_n\right]
+= \frac{1}{n_1}\sum_{i=1}^n \,Y_i(1) \mathbb{E}\!\left[ T_i\,\mid\, \mathcal O_n\right]
+= \frac{1}{n_1}\sum_{i=1}^n \,Y_i(1) \frac{n_1}{n}
+= \frac{1}{n}\sum_{i=1}^n Y_i(1).
+\]
+The equality follows because, by symmetry of the CRD with fixed $n_1$, each $i$ is selected into treatment with probability $n_1/n$, 
+\[
+\mathbb{E}\!\left[ T_i\, \mid \, \mathcal O_n\right] = \mathbb{E}\!\left[ T_i\right] = \Pr(T_1 = 1) = \frac{n_1}{n}
+\]
+Analogously,
+\[
+\mathbb{E}\!\left[\overline Y_0\mid \mathcal O_n\right]
+= \frac{1}{n}\sum_{i=1}^n Y_i(0).
+\]
+Subtracting yields
+\[
+\mathbb{E}\!\left[\hat\tau\mid \mathcal O_n\right]
+= \frac{1}{n}\sum_{i=1}^n \big(Y_i(1)-Y_i(0)\big)
+= \tau_{\mathrm{SATE}}.
+\]
+
+(ii) \emph{Super-population.} Using the law of iterated expectation and (i),
+\[
+\mathbb{E}[\hat\tau]
+= \mathbb{E}\!\left[\;\mathbb{E}[\hat\tau \mid \mathcal O_n]\;\right]
+= \mathbb{E}\!\left[\frac{1}{n}\sum_{i=1}^n \big(Y_i(1)-Y_i(0)\big)\right]
+= \mathbb{E}\!\big[Y(1)-Y(0)\big]
+= \tau_{\mathrm{PATE}},
+\]
+where the last equality uses i.i.d.\ sampling so that the expectation of the sample mean equals the population mean.
+\end{proof}
+
+\begin{lemma}[Variance of the difference-in-means estimator]
+\label{lem:var}
+Let $\hat\tau=\overline Y_1-\overline Y_0$, where $\overline Y_t=\frac{1}{n_t}\sum_{i:T_i=t}Y_i$ and $n_t=\sum_{i=1}^n\mathbf 1\{T_i=t\}$, under a completely randomized design (CRD) with fixed $n_1$ and $n_0$.
+\begin{enumerate}[label=(\roman*)]
+    \item (\textbf{Finite population / SATE}) Conditioning on $\mathcal O_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$,
+    \[
+    \Var(\hat\tau \mid \mathcal O_n)
+    \;=\; \frac{1}{n}\!\left(\frac{n_0}{n_1}S_1^2+\frac{n_1}{n_0}S_0^2+2S_{01}\right) = \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\ast^2}{n} \leq \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0},
+    \]
+    with $S_\ast^2=S_1^2+S_0^2-2S_{01} \geq 0$ and $\E\left[S_\ast^2\right] = \Var\!\big(Y_i(1)-Y_i(0)\big)$.
+    \item (\textbf{Super-population / PATE}) If, in addition, the $n$ units are drawn i.i.d.\ from a population where $(Y(1),Y(0))$ are random,
+    \[
+    \Var(\hat\tau)
+    \;=\; \frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0}\,.
+    \]
+\end{enumerate}
+\end{lemma}
+
+\begin{remark}
+    The above lemma illustrates why we can use the estimator for the super-population variance for the finite-population variance. In expectation this estimator yields.
+    \[
+    \mathbb{E}[\widehat{\Var}(\hat\tau) \mid \mathcal O_n] = \mathbb{E}\left[\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}\right] = \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0} \geq \Var(\hat\tau \mid \mathcal O_n)
+    \]
+\end{remark}
+
+\begin{proof}
+(i) \emph{Finite population.} 
+The first equality follows from the review questions. We show the second equality here. By definition $2S_{01} = S_1^2 + S_0^2 - S_\ast^2$. Inserting into the variance
+\begin{align*}
+     \Var(\hat\tau \mid \mathcal O_n)
+    &= \frac{1}{n}\!\left(\frac{n_0}{n_1}S_1^2+\frac{n_1}{n_0}S_0^2+2S_{01}\right)
+    \\
+    &= \frac{1}{n}\!\left(\frac{n_0}{n_1}S_1^2+\frac{n_1}{n_0}S_0^2+S_1^2 + S_0^2 - S_\ast^2\right)
+    \\
+    &= \frac{1}{n}\!\left(\frac{n_0 + n_1}{n_1}S_1^2+\frac{n_1 + n_0}{n_0}S_0^2 - S_\ast^2\right)
+    \\ 
+    &= \frac{1}{n}\!\left(\frac{n}{n_1}S_1^2+\frac{n}{n_0}S_0^2 - S_\ast^2\right)
+    \\
+    &= \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\ast^2}{n}. 
+\end{align*}
+This proves the second equality. It remains to show that $S_\ast^2 \geq 0$. By Cauchy-Schwarz we have
+\[
+S_{01} \leq S_1 S_0.
+\]
+Noting that $S_t \geq 0$ we have 
+
+\[S_\ast^2=S_1^2+S_0^2-2S_{01} \geq S_1^2+S_0^2 - 2S_1S_0 = (S_1 - S_0)^2 \geq 0,
+\]
+which proves the last claim.
+
+
+(ii) \emph{Super-population.} By the law of iterated iterated variance and our i.i.d. assumption:
+\begin{align*}
+\Var(\hat\tau)&=\E\!\big[\Var(\hat\tau\mid \mathcal O_n)\big]+\Var\!\big(\E[\hat\tau\mid \mathcal O_n]\big)
+\\
+&= \E \left[\frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\star^2}{n}\right] + \Var\left(\frac{1}{n}\sum_{i=1}^n\!\big(Y_i(1)-Y_i(0)\big)\right)
+\\
+&= \frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0} - \frac{1}{n}E[S_\star^2] + \frac{1}{n} \Var(Y_i(1)-Y_i(0))
+\end{align*}
+since $\E[S_t^2]=\sigma_t^2$ by the unbiasedness of the sample variance. It remains to show that $E[S_\star^2] = \Var(Y(1)-Y(0))$.
+Let $\mu_1=\E[Y(1)]$, $\mu_0=\E[Y(0)]$. Expand
+\begin{align*}
+    S_{01} = \frac{1}{n-1} \sum_{i=1}^n\big(Y_i(1)-\overline{Y(1)}\big)\big(Y_i(0)-\overline{Y(0)}\big)
+=\frac{1}{n-1} \left[\sum_{i=1}^n\big(Y_i(1)-\mu_1\big)\big(Y_i(0)-\mu_0\big)
+- n\big(\overline{Y(1)}-\mu_1\big)\big(\overline{Y(0)}-\mu_0\big)\right]
+\end{align*}
+Taking expectations,
+\begin{align*}
+    \E\!\left[\sum_{i=1}^n\big(Y_i(1)-\mu_1\big)\big(Y_i(0)-\mu_0\big)\right]
+&= n \Cov(Y_i(1), Y_i(0))
+\\
+\E\!\left[n\big(\overline{Y(1)}-\mu_1\big)\big(\overline{Y(0)}-\mu_0\big)\right] &= n\,\Cov\!\big(\overline{Y(1)},\overline{Y(0)}\big)
+\\
+&=n \frac{1}{n^2}\sum_{i, j =1}^n \Cov(Y_i(1), Y_j(0))
+\\
+&= \frac{1}{n} \sum_{i=1}^n \Cov(Y_i(1), Y_i(0))
+\\
+&= \Cov(Y_i(1), Y_i(0))
+\end{align*}
+Therefore
+\[
+\E\!\left[S_{01}\right]=\frac{1}{n-1} (n-1) \Cov(Y_i(1), Y_i(0)) = \Cov(Y_i(1), Y_i(0))
+\]
+By linearity of expectation,
+\[
+\E[S_\ast^2]
+= \E[S_1^2]+\E[S_0^2]-2\,\E[S_{01}]
+= \sigma_1^2+\sigma_0^2-2\Cov(Y_i(1), Y_i(0)).
+\]
+Finally, for any two random variables $A,B$,
+\(\Var(A-B)=\Var(A)+\Var(B)-2\Cov(A,B)\).
+With $A=Y(1)$ and $B=Y(0)$,
+\[
+\Var\!\big(Y(1)-Y(0)\big)=\sigma_1^2+\sigma_0^2-2\Cov(Y_i(1), Y_i(0)).
+\]
+Thus $\E[S_\ast^2]=\Var\!\big(Y(1)-Y(0)\big)$, as claimed.
+
+
+
+
+\end{proof}
+
+
+
+
+
+
+
+\endgroup
+\end{document}

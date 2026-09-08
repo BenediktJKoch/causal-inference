@@ -1,0 +1,136 @@
+% preamble.sty
+\ProvidesPackage{preamble}[CausalCoursePreamble]
+
+% --- Core math & fonts ---
+\RequirePackage{amsmath,amssymb,bm}
+\RequirePackage{dsfont}
+
+% --- Graphics & tables ---
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+% --- Colors & tables ---
+\RequirePackage{xcolor}
+\RequirePackage{colortbl}
+
+% --- Lists, comments, framing ---
+\RequirePackage{enumitem}
+\RequirePackage{comment}
+\RequirePackage{mdframed}
+
+% --- Geometry ---
+\RequirePackage[margin=1in]{geometry}
+
+% --- Diagrams ---
+\RequirePackage{tikz}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+\RequirePackage[color,all,import,arrow]{xy}
+\usetikzlibrary{arrows.meta,positioning}
+
+% --- Subfigures: pick ONE; subcaption recommended ---
+\RequirePackage{subcaption}
+
+% --- Bibliography (natbib before hyperref) ---
+\RequirePackage{natbib}
+\AtBeginDocument{\bibliographystyle{plainnat}}
+
+% --- Hyperref LAST ---
+\RequirePackage[
+  bookmarksopen=true,
+  bookmarksnumbered=true,
+  pdfstartview=FitH,
+  breaklinks=true
+]{hyperref}
+
+% --- Class-specific header settings (exam class only) ---
+\makeatletter
+\@ifclassloaded{exam}{%
+  \pagestyle{headandfoot}
+  \firstpageheadrule
+  \runningheadrule
+  % Optional custom header file if present:
+  \IfFileExists{style/header.sty}{\RequirePackage{style/header}}{}
+  \rhead{\name}
+  \lhead{\class}
+  \cfoot{Page~\thepage}
+}{}
+\makeatother
+
+% --- Theorems (amsthm is modern & robust) ---
+\RequirePackage{amsthm}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% --- Math operators & shortcuts ---
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\ind}{\perp\!\!\!\perp}
+\newcommand{\nind}{\not\!\perp\!\!\!\perp}
+\newcommand{\indist}{\xrightarrow{d}}
+\newcommand{\inprob}{\xrightarrow{p}}
+\newcommand{\as}{\xrightarrow{a.s.}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\ATE}{\mathrm{ATE}}
+\newcommand{\CATE}{\mathrm{CATE}}
+\newcommand{\LATE}{\mathrm{LATE}}
+\newcommand{\ITT}{\mathrm{ITT}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Cor}{\mathrm{Cor}}
+\newcommand{\sVar}{\widehat{\mathrm{Var}}}
+\newcommand{\sCov}{\widehat{\mathrm{Cov}}}
+\newcommand{\sCor}{\widehat{\mathrm{Cor}}}
+\newcommand{\IV}{\mathrm{IV}}
+\newcommand{\TSLS}{\mathrm{TSLS}}
+\newcommand{\RR}{\mathrm{RR}}
+\newcommand{\Nb}[1]{\mathcal{N}\!\left(#1\right)}
+\newcommand{\indicator}[1]{\mathds{1}\!\left\{#1\right\}}
+\newcommand{\iid}{\overset{\text{i.i.d.}}{\sim}}
+\newcommand{\lt}{\left}
+\newcommand{\rt}{\right}
+
+% --- Bold symbols you listed ---
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bY}{\bm{Y}}
+\newcommand{\bT}{\bm{T}}
+\newcommand{\bD}{\bm{D}}
+\newcommand{\bZ}{\bm{Z}}
+\newcommand{\bA}{\bm{A}}
+\newcommand{\bB}{\bm{B}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+
+\endinput
+

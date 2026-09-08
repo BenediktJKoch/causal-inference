@@ -1,0 +1,1052 @@
+\documentclass[10pt, handout]{beamer}
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{footline}[page number]{}
+\usetheme{Madrid}
+\usepackage{appendixnumberbeamer}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage[normalem]{ulem}  % for \sout
+\newcommand{\ones}{\mathbf{1}}
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+\usepackage{qrcode}
+
+%% === basic packages ===
+\usepackage{latexsym,multirow}
+\usepackage{amssymb,amsmath,bm}
+\usepackage{graphicx}
+\usepackage[color,all,import,arrow]{xy}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage{transparent}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usetikzlibrary{calc}
+
+
+\theoremstyle{plain}
+\newtheorem{assumption}{Assumption}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newtheorem{defi}{Definition}
+\newtheorem{thm}{Theorem}
+
+
+
+
+\usepackage{colortbl}  % Required for \rowcolor
+\usepackage{xcolor} 
+
+%% == tikz
+\usepackage{tikz}
+\usepackage{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+
+% === some special symbols
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\ind}{\mbox{$\perp\!\!\!\perp$}}
+\newcommand{\nind}{\mbox{$\not\perp\!\!\!\perp$}}
+
+
+\newcommand{\cX}{\mathcal{X}}
+
+\newcommand{\hbx}{\bar{\bm{x}}}
+\newcommand{\hbX}{\overline{\bm{X}}}
+\newcommand{\hbz}{\bar{\bm{z}}}
+\newcommand{\hbZ}{\overline{\bm{Z}}}
+
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\ubX}{\underline{\bm{X}}}
+\newcommand{\td}{\text{d}}
+\newcommand{\bZ}{\bm{Z}}
+\newcommand{\ubZ}{\underline{\bm{Z}}}
+\newcommand{\bD}{\bm{D}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\ubD}{\underline{\bm{D}}}
+\newcommand{\ucD}{\underline{\mathcal{D}}}
+\newcommand{\bz}{\bm{z}}
+\newcommand{\ubz}{\underline{\bm{z}}}
+\newcommand{\bd}{\bm{d}}
+\newcommand{\ubd}{\underline{\bm{d}}}
+\newcommand{\bY}{\bm{Y}}
+\newcommand{\ubY}{\underline{\bm{Y}}}
+\newcommand{\ucY}{\underline{\mathcal{Y}}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\uby}{\underline{\bm{y}}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\add}{\textsc{Add}}
+\newcommand{\std}{\textsc{Std}}
+\newcommand{\cof}{\textsc{Cof}}
+
+\newcommand{\oD}{\overline{D}}
+\newcommand{\oY}{\overline{Y}}
+
+\newcommand{\bS}{\bar{S}}
+\newcommand{\bs}{\bar{s}}
+\newcommand{\Ss}{\mathcal{S}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+
+
+\newcommand{\cU}{\mathcal{U}}
+
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\Yone}{Y(1)}
+\newcommand{\Yzero}{Y(0)}
+\newcommand{\ATE}{\mathrm{ATE}}
+\usepackage{booktabs,tabularx}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+
+
+% BK: Added Userpackages and Commands
+\usepackage{dsfont}
+\usepackage{caption}
+\usepackage{tikz-cd}
+\usetikzlibrary{arrows.meta}
+
+\newcommand{\lt}{\left}
+\newcommand{\rt}{\right}
+\newcommand{\indicator}[1]{\mathds{1}{\left\{ #1 \right\}}}
+\newcommand{\prb}[1]{\mathbb{P}{\left( #1 \right)}}
+\newcommand{\prbcond}[2]{\mathbb{P}{\left( #1 \mid #2 \right)}}
+\newcommand{\Eb}[1]{\mathbb{E}{\left[ #1 \right]}}
+\newcommand{\Ebcond}[2]{\mathbb{E}{\left[ #1 \mid #2 \right]}}
+\newcommand{\indist}{\overset{d}{\to}}
+\newcommand{\inprob}{\overset{p}{\to}}
+\newcommand{\as}{\overset{a.s.}{\to}}
+\newcommand{\Nb}[1]{\mathcal{N}{\left( #1 \right)}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\cF}{\mathcal{F}}
+
+\usepackage[style=authoryear]{biblatex}
+
+% Add bib resource
+\addbibresource{references.bib}
+
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+
+\title{Midterm Review Lecture STAT 286}
+\author{Benedikt Koch}
+\date{October 8th, 2025}
+\begin{document}
+
+\begin{frame}[plain]
+
+  \maketitle
+
+\end{frame}
+
+
+\AtBeginSection[]
+{
+  \begin{frame}{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\section{Introduction}
+
+\begin{frame}{Causal Inference Pipeline}
+\begin{itemize}
+    \item \textbf{Setup}: Binary treatment \(T_i\in\{0,1\}\); outcome \(Y_i\) may be binary, count, or continuous.
+    \pause
+    \item \textbf{Goal:} Quantify the causal effect of \(T\) on \(Y\).
+    \pause
+    \item \textbf{Estimand}: 
+    
+    \(\displaystyle \tau_{\text{SATE}}=\frac{1}{n}\sum_{i=1}^n\big(Y_i(1)-Y_i(0)\big), \qquad  \tau_{\text{PATE}}=\mathbb{E}\big[Y(1)-Y(0)\big]\)
+    \pause
+    \item \textbf{Identification:} A causal estimand \(\tau\) is \emph{identified} if there exists a known map \(g\) such that
+  \[
+    \tau=g(\mathbb{P}),\qquad \mathbb{P} \text{ is the observable law of } (Y,T,X).
+  \]
+  Requires assumptions!
+    \item \textbf{Example (under CRD):}
+  \[
+    \mathbb{E}[Y(1)-Y(0)] \;=\; \mathbb{E}[Y\!\mid\!T{=}1]-\mathbb{E}[Y\!\mid\!T{=}0].
+  \]
+  \pause
+    \item \textbf{Estimation \& inference:} Estimate the identified estimand (permutation + test inversion, diff-in-means + Neyamnn variance, OLS\,+\,HC2), report s.e./CI, hope its significant
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Assumptions}
+
+
+\begin{itemize}
+  \item \textbf{Causal ordering.} $T_i \to Y_i$
+  \pause
+
+  \vspace{1em}
+  \item \textbf{Stable Unit Treatment Value Assumption (SUTVA).}
+  \setlength{\itemsep}{6pt} % slightly smaller spacing for nested list
+    \begin{itemize}
+      \item \emph{No interference:} $Y_i(T_1,\dots,T_N)=Y_i(T_i)$
+      \item \emph{Consistency:} $Y_i = Y_i(T_i)$
+    \end{itemize}
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Randomization.}
+  \setlength{\itemsep}{6pt}
+    \begin{itemize}
+        \item \emph{Unconfoundedness:} $(Y_i(1),Y_i(0)) \;\perp\!\!\!\perp\; T_i$
+        \item \emph{Overlap:} $0<\Pr(T_i = 1) <1$, in CRD: $\Pr(T_i=1) = \frac{n_1}{n}$
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{When Assumptions Fail}
+\textbf{Scenario:} Effect of a flu shot ($T$) on days sick ($Y$).
+
+\pause
+\vspace{1em}
+\begin{itemize}
+  \item \textbf{Causal ordering}: People vaccinate \emph{after} feeling ill $\Rightarrow Y \to T$.
+  
+  \pause
+  \vspace{1em}
+  \item \textbf{No interference}: Herd immunity; $Y_i$ depends on others’ $T_j$.
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Consistency}: “Flu shot” has different versions $\Rightarrow T{=}1$ not well-defined.
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Unconfoundedness}: Health-consciousness or access affects both $T$ and $Y$ (selection bias).
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Overlap}: Some strata always/never vaccinate; no comparable counterfactuals.
+\end{itemize}
+
+\medskip
+\textbf{Result:} $\mathbb{E}[Y(1)-Y(0)] \neq \E[Y\mid T{=}1]-\E[Y\mid T{=}0]$
+\end{frame}
+
+\section{Permutation Test}
+
+\begin{frame}{Permutation Test (1/4)}
+
+\begin{itemize}
+  \item \textbf{Setup}:
+  \setlength{\itemsep}{6pt} % slightly tighter spacing for nested list
+    \begin{itemize}
+      \item Units: $i = 1,\ldots,n$
+      \item Treatment: $T_i \in \{0,1\}$
+      \item Outcome: $Y_i = Y_i(T_i)$, \quad $\mathcal{O}_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$
+      \item Completely Randomized Design (CRD): $\Pr(T_i=1\mid \mathcal{O}_n)=\Pr(T_1=1)=\tfrac{n_1}{n}$
+    \end{itemize}
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Sharp Null}: $H_0:\; Y_i(1)-Y_i(0)=\tau_0$ \; (often $\tau_0=0$)
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Test Statistic}:
+  $S_{\tau_0}=\frac{1}{n_1}\sum_{i=1}^n T_i\,Y_i(T_i)\;-\;\frac{1}{n_0}\sum_{i=1}^n (1-T_i)\,(Y_i(T_i) + \tau_0)$ \quad (many possibilities, calibrate $\E[S_{\tau_0} \mid H_0] = 0$ to make inference easier (not necessary))
+
+  \pause
+  \vspace{1em}
+  \item \textbf{Inference}: Permutation with inversion
+  
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Permutation Test (2/4)}
+
+\small
+\begin{itemize}
+  \item \textbf{Sharp Null:}\; $H_0:\; Y_i(1)-Y_i(0)=\tau_0$
+  \vspace{0.5em}
+  \item \textbf{Test Statistic:}\;
+  \[
+  S_{\tau_0} = \frac{1}{n_1}\sum_{i=1}^n T_i\,Y_i(T_i)
+  \;-\;
+  \frac{1}{n_0}\sum_{i=1}^n (1-T_i)\,(Y_i(T_i) + \tau_0)
+  \]
+\end{itemize}
+
+\pause
+\vspace{0.8em}
+\textbf{Pipeline.}
+\begin{itemize}
+  \setlength{\itemsep}{6pt}
+  \item Draw $b = 1,\ldots,B$ random assignments $\bm{T}^{(b)} \in \{0,1\}^n$.
+  \item Compute potential outcomes under each assignment:
+  \begin{itemize}
+    \setlength{\itemsep}{4pt}
+    \item If $T_i^{(b)} = T_i$: $Y_i(T_i^{(b)}) = Y_i(T_i)$
+    \item If $(T_i^{(b)}, T_i) = (0,1)$: $Y_i(T_i^{(b)}) = Y_i(0) = Y_i(1) - \tau_0 = Y_i(T_i) - \tau_0$
+    \item If $(T_i^{(b)}, T_i) = (1,0)$: $Y_i(T_i^{(b)}) = Y_i(1) = Y_i(0) + \tau_0 = Y_i(T_i) + \tau_0$
+  \end{itemize}
+  \item Recalculate the test statistic:
+  \[
+  S^{(b)} = 
+  \frac{1}{n_1}\sum_{i=1}^n T_i^{(b)}\,Y_i(T_i^{(b)})
+  - 
+  \frac{1}{n_0}\sum_{i=1}^n (1-T_i^{(b)})\,(Y_i(T_i^{(b)}) + \tau_0).
+  \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Permutation Test (3/4)}
+
+\footnotesize
+\textbf{p-values.}
+\begin{itemize}
+  \setlength{\itemsep}{5pt}
+  \item $H_1:\ \tau \neq \tau_0$ 
+  \[
+  p_{\text{perm}}(\tau_0)
+  = \frac{1+\sum_{b=1}^B \indicator{|S^{(b)}-\mu|\ge|S_{\tau_0}^{\text{obs}}-\mu|}}{B+1}
+  \]
+  ($\mu = \E[S_{\tau_0} \mid H_0(\tau_0)]$; here $\mu = 0$; alternative $p_{\text{perm}}(\tau_0) = 2 \cdot \min(p_{\text{perm},+}(\tau_0), p_{\text{perm},-}(\tau_0))$)
+  \item $H_1:\ \tau>\tau_0$ 
+  \[
+  p_{\text{perm},+}(\tau_0)
+  = \frac{1+\sum_{b=1}^B \indicator{S^{(b)}\ge S_{\tau_0}^{\text{obs}}}}{B+1}.
+  \]
+  \item $H_1:\ \tau<\tau_0$
+  \[
+  p_{\text{perm},-}(\tau_0)
+  = \frac{1+\sum_{b=1}^B \indicator{S^{(b)}\le S_{\tau_0}^{\text{obs}}}}{B+1}.
+  \]
+\end{itemize}
+
+\pause
+
+\textbf{Confidence set.}
+\[
+\mathcal C_{1-\alpha}=\{\tau:\ p(\tau)>\alpha\},
+\]
+where \(p(\tau)\) is the p\textendash value for \(H_0(\tau)\).
+If the test statistic is monotone in \(\tau\), then \(\mathcal C_{1-\alpha}\) is an interval.
+
+\pause
+
+\bigskip
+\textbf{Point estimate.}
+\[
+\hat\tau=\operatorname*{arg\,max}_{\tau}\ p(\tau).
+\]
+
+\end{frame}
+
+
+
+\begin{frame}{Permutation Test (4/4)}
+\begin{itemize}
+    \item \textbf{Pros}: $Y_i$ can be binary, categorical, or continuous
+
+    \vspace{0.5em}
+    \item \textbf{Cons}: May be less powerful; sensitive to outliers; rank-based versions mitigate this (although they require non-binary $Y_i$)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Rank-Sum Test (1/2)}
+
+\begin{itemize}
+  \setlength{\itemsep}{6pt}
+  \item \textbf{Setup:} \(Y_i\) non-binary (typically continuous).
+  \item \textbf{Sharp null:} \(H_0:\; Y_i(1)-Y_i(0)=\tau_0\).
+  \item \textbf{Test statistic:} \(S_{\tau_0}=\sum_{i=1}^n T_i\,R_i(\bm Y-\tau\bm T)\).
+\end{itemize}
+
+\pause
+\vspace{0.8em}
+\textbf{Invariance under \(H_0\):} Let \(\bm T,\bm A\in\{0,1\}^n\),
+  \[
+    \bm Y(\bm T)-\tau_0\bm T \;=\; \bm Y(0) \;=\; \bm Y(\bm A)-\tau_0\bm A.
+  \]
+  \vspace{-1em}
+  \begin{itemize}
+    \setlength{\itemsep}{4pt}
+    \item \(T_i=1:\; Y_i(T_i)-\tau_0 T_i=Y_i(1)-\tau_0=Y_i(0)\).
+    \item \(T_i=0:\; Y_i(T_i)-\tau_0 T_i=Y_i(0)\).
+  \end{itemize}
+  Hence \(S_{\tau_0}\) does not depend on \(\tau_0\) given \(H_0\); use a normal approximation or permutation inference.
+
+\pause
+\vspace{0.8em}
+\textbf{Permutation Inference}: Draw $b = 1,\ldots,B$ random assignments $\bm{T}^{(b)} \in \{0,1\}^n$.
+  \[
+  S^{(b)} = \sum_{i=1}^n T^b_i \,R_i(\bm Y-\tau\bm T)
+  \]
+  Note that we do not change the expression inside the ranks.
+\end{frame}
+
+\begin{frame}{Rank-Sum Test (2/2)}
+
+\vspace{0.8em}
+\textbf{Other important facts}
+
+\begin{itemize}
+  \setlength{\itemsep}{8pt}
+    \pause
+  \item \emph{Monotonicity:} \(S_\tau\) is nonincreasing in \(\tau\); if \(\tau_1<\tau_2\) then \(S_{\tau_1}>S_{\tau_2}\).
+
+    \pause
+  \item \emph{Maximal treatment effects:} \(H^{\max}_0(\tau_0):\ \max_i\{Y_i(1)-Y_i(0)\}\le\tau_0\).
+  \[
+    \Pr\!\big(S_{\tau_0}\!\ge s \mid H^{\max}_0(\tau_0)\big)
+    \;\le\;
+    \Pr\!\big(S_{\tau_0}\!\ge s \mid H_0(\tau_0)\big).
+  \]
+  Same one-sided sharp-null statistic yields valid (conservative) p-values.
+\end{itemize}
+
+\end{frame}
+
+
+
+% \begin{frame}{Rank-Sum Test}
+% \begin{itemize}
+%   \item \textbf{Setup:} \(Y_i\) non-binary (typically continuous).
+%   \item \textbf{Sharp null:} \(H_0:\; Y_i(1)-Y_i(0)=\tau_0\).
+%   \item \textbf{Test statistic:} \(S_\tau=\sum_{i=1}^n T_i\,R_i(\bm Y-\tau\bm T)\).
+% \end{itemize}
+
+% \medskip
+% \textbf{Important facts}
+% \begin{itemize}
+%   \item \emph{Invariance under \(H_0\):} for any \(\bm T,\bm A\in\{0,1\}^n\),
+%   \[
+%     \bm Y(\bm T)-\tau_0\bm T=\bm Y(0)=\bm Y(\bm A)-\tau_0\bm A.
+%   \]
+%   \vspace{-1.5em}
+%   \begin{itemize}
+%     \item \(T_i=1:\; Y_i(T_i)-\tau T_i=Y_i(1)-\tau=Y_i(0)\).
+%     \item \(T_i=0:\; Y_i(T_i)-\tau T_i=Y_i(0)\).
+%   \end{itemize}
+%   Hence \(S_{\tau_0}\) does not depend on $\tau_0$ given $H_0$: use a normal approximation or permutation inference.
+%   \item \emph{Monotonicity:} \(S_\tau\) is non-increasing in \(\tau\); if \(\tau_1<\tau_2\) then \(S_{\tau_1}>S_{\tau_2}\).
+%   \item \emph{Maximal Treatment Effects}: $H^{\max}_0(\tau_0):\ \max_{1\le i\le n}\{Y_i(1)-Y_i(0)\}\ \le\ \tau_0$.
+%   \[
+%     \Pr(S_{\tau_0} \geq s \mid H^{\max}_0(\tau_0)) \leq \Pr(S_{\tau_0} \geq s \mid H_0(\tau_0)).
+%     \]
+%     Same test statistic under the one-sided sharp null $H_1: \tau > \tau_0$, gives valid p-values.
+% \end{itemize}
+% \end{frame}
+
+% \begin{frame}{Inverting the Test}
+% \textbf{Confidence interval.}
+% \[
+% \mathcal C_{1-\alpha}=\{\tau:\ p(\tau)>\alpha\},
+% \]
+% where \(p(\tau)\) is the p\textendash value for \(H_0(\tau)\).
+% If the test statistic is monotone in \(\tau\) (e.g., \(S_\tau\)), then \(\mathcal C_{1-\alpha}\) is an interval.
+
+% \bigskip
+% \textbf{Point estimate.}
+% \[
+% \hat\tau=\operatorname*{arg\,max}_{\tau}\ p(\tau).
+% \]
+% \end{frame}
+
+\section{Average Treatment Effects}
+
+% --- Slide 1: rows through Estimand ---
+\begin{frame}{Finite vs.\ Super - Population (1/3)}
+\footnotesize
+\begin{table}
+\centering
+\begin{tabular}{|>{\centering\arraybackslash}p{0.24\textwidth}|>{\centering\arraybackslash}p{0.33\textwidth}|>{\centering\arraybackslash}p{0.33\textwidth}|}
+\hline
+ & \textbf{Finite-Population} & \textbf{Super-Population} \\
+\hline
+\textit{Population} &
+Set of units in the study is fixed and finite &
+Units are drawn i.i.d.\ from a large or infinite ``super-population.'' \\
+\hline
+\textit{Potential Outcomes} &
+Fixed set $\mathcal{O}_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$ &
+$(Y_i(0),Y_i(1)) \text{ i.i.d.\ }\sim \mathbb{P}^{\ast}$ \\
+\hline
+\textit{Inference} &
+Treatment effects for this specific group of units &
+Treatment effects for the underlying population distribution \\
+\hline
+\textit{Source of Randomness} &
+Treatment assignment &
+\begin{tabular}{@{}c@{}}Treatment assignment \\ Sampling of units from the population\end{tabular} \\
+\hline
+\textit{Random Variables} &
+Treatment $T_i$ &
+Treatment and Potential Outcomes $T_i, Y_i(0), Y_i(1)$ \\
+\hline
+\textit{Example} &
+What is the ATE on these $n$ units in our experiment? &
+What is the ATE in the population from which these $n$ units were sampled? \\
+\hline
+\textit{Validity} &
+Internal &
+External \\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+% --- Slide 2: Estimator through Estimator of Variance + Notation ---
+\begin{frame}{Finite vs.\ Super - Population (2/3)}
+\footnotesize
+\begin{table}
+\centering
+\begin{tabular}{|>{\centering\arraybackslash}p{0.24\textwidth}|>{\centering\arraybackslash}p{0.33\textwidth}|>{\centering\arraybackslash}p{0.33\textwidth}|}
+\hline
+ & \textbf{Finite-Population} & \textbf{Super-Population} \\
+ \hline
+\textit{Estimand} &
+$\displaystyle \tau_{\mathrm{SATE}}=\frac{1}{n}\sum_{i=1}^n\!\big(Y_i(1)-Y_i(0)\big)$ &
+$\displaystyle \tau_{\mathrm{PATE}}=\mathbb{E}\!\left[Y(1)-Y(0)\right]$ \\
+\hline
+\textit{Estimator} & \multicolumn{2}{c|}{%
+\begin{tabular}{c}
+Difference in means \\
+$\hat\tau = \overline Y_1 - \overline Y_0$
+\end{tabular}} \\
+\hline
+\textit{Unbiasedness} &
+$\E[\hat\tau \mid \mathcal{O}_n] = \tau_{\mathrm{SATE}}$ &
+$\E[\hat\tau] = \tau_{\mathrm{PATE}}$ \\
+\hline
+\textit{Variance of Estimator} &
+$\displaystyle \mathrm{Var}(\hat\tau\mid \mathcal O_n)
+= \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}-\frac{S_\ast^2}{n} \leq \frac{S_1^2}{n_1}+\frac{S_0^2}{n_0}$
+&
+$\displaystyle \mathrm{Var}(\hat\tau)=\frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0}$ \\
+\hline
+\textit{Estimator of Variance} &
+\multicolumn{2}{c|}{%
+\begin{tabular}{c}
+$\displaystyle \widehat{\mathrm{Var}}(\hat\tau)=\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}$
+\\
+Conservative for FP, Unbiased for SP
+\end{tabular}} \\
+\hline
+\textit{CI in practice} & \multicolumn{2}{c|}{%
+\begin{tabular}{c}
+$\displaystyle \text{s.e.}=\sqrt{\frac{\hat\sigma_1^2}{n_1}+\frac{\hat\sigma_0^2}{n_0}}$\\
+$\displaystyle (1-\alpha)\times 100\%\ \text{CI: }\big[\hat\tau \pm z_{1-\alpha/2}\cdot \text{s.e.}\big]$
+\end{tabular}} \\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Finite vs.\ Super - Population (3/3)}
+\textbf{Notation}
+\[
+\begin{aligned}
+&n_1=\sum_{i=1}^n T_i,\quad n_0=n-n_1,\qquad
+\overline{Y(t)} =\frac{1}{n}\sum_{i=1}^n Y_i(t), \quad \overline Y_t=\frac{1}{n_t}\sum_{i:T_i=t}Y_i, \\
+&S_t^2=\frac{1}{n-1}\sum_{i=1}^n\big(Y_i(t)-\overline{Y(t)}\big)^2,\quad 
+S_{01}=\frac{1}{n-1}\sum_{i=1}^n\!\big(Y_i(1)-\overline{Y(1)}\big)\big(Y_i(0)-\overline{Y(0)}\big),\\
+&\sigma_t^2=\mathrm{Var}\!\big(Y_i(t)\big) = \E[S_t^2],\qquad \hat\sigma_t^2=\frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline Y_t\big)^2.
+\end{aligned}
+\]
+\end{frame}
+
+\section{Linear Regression}
+
+\begin{frame}{Potential Outcomes as Linear Models}
+
+\textbf{Setup.} Binary treatment $T_i\in\{0,1\}$. Define
+\[
+\alpha_i := Y_i(0), \qquad 
+\beta_i := Y_i(1)-Y_i(0), \qquad
+\alpha := \E[Y_i(0)], \qquad 
+\beta := \E[Y_i(1)-Y_i(0)].
+\]
+
+\medskip
+\textbf{Decomposition:}
+\begin{align*}
+\onslide<+->{Y_i(t) 
+&= Y_i(0) + \big(Y_i(1)-Y_i(0)\big)\,t }\\[2pt]
+\onslide<+->{&= \E[Y_i(0)] + \big(Y_i(0) - \E[Y_i(0)]\big)}\\[2pt]
+\onslide<+->{&\quad + \E[Y_i(1)-Y_i(0)]\,t + \big(Y_i(1)-Y_i(0) - \E[Y_i(1)-Y_i(0)]\big)\,t }\\[2pt]
+\onslide<+->{&= \alpha + (\alpha_i-\alpha) + \beta\,t + (\beta_i-\beta)\,t }\\[2pt]
+\onslide<+->{&= \alpha + \beta\,t + \underbrace{(\beta_i-\beta)\,t + (\alpha_i-\alpha)}_{=:~\varepsilon_i(t)} }\\[2pt]
+\onslide<+->{&= \alpha + \beta\,t + \varepsilon_i(t).}
+\end{align*}
+
+\medskip
+\onslide<+->{\textbf{Key facts.} $\E[\varepsilon_i(t)]=0$. Potential outcomes can be written as linear models without assumptions. Regressing $Y_i\sim[1,\,T_i]$ targets $\beta=\E[Y_i(1)-Y_i(0)]$. Extends to \emph{categorical} $T$. For \emph{continuous} $T$, writing $Y_i(t)=\alpha_i+\beta_i t$ imposes linearity in $t$.}
+\end{frame}
+
+\begin{frame}{Review: Linear Regression (1/2)}
+\small
+\begin{itemize}
+  \item \textbf{Linear model:}
+  \[
+    \bY = \bX \bm{\beta}^\ast + \bm{\varepsilon}.
+  \]
+  where
+  \[
+  \bY =
+  \begin{bmatrix}
+  Y_1 \\ \vdots \\ Y_n
+  \end{bmatrix}, \quad
+  \bX =
+  \begin{bmatrix}
+  1 & X_{11} & \cdots & X_{K1} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  1 & X_{n1} & \cdots & X_{Kn}
+  \end{bmatrix}, \quad
+  \bm{\beta}^\ast =
+  \begin{bmatrix}
+  \beta^\ast_0 \\ \vdots \\ \beta^\ast_K
+  \end{bmatrix}.
+  \]
+  \pause
+  \vspace{0.5em}
+  Note that since we have not specified $\bm{\varepsilon}$, this model is fully general.
+  \pause
+  \vspace{1em}
+
+  \item \textbf{Ordinary Least Squares (OLS) estimator:}
+  \[
+    \hat{\bm{\beta}} = \argmin_{\bm{\beta}} \|\bY - \bX \bm{\beta}\|_2,
+  \]
+  which leads to the closed-form solution:
+  \[
+    \hat{\bm{\beta}} = (\bX^\top \bX)^{-1} \bX^\top \bY
+    = \left(\frac{1}{n}\sum_{i=1}^n \bX_i \bX_i^\top\right)^{-1}
+      \left(\frac{1}{n}\sum_{i=1}^n \bX_i Y_i\right),
+  \]
+  where $\bX_i = [1, X_{1i}, \ldots, X_{Ki}]^\top$.
+  \pause
+  \vspace{0.5em}
+  \textbf{Interpretation:} The OLS estimator gives the \emph{best linear approximation} of $\E[Y_i \mid \bX_i]$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Review: Linear Regression (2/2)}
+\small
+\textbf{Assumption: Strict exogeneity}
+\[
+\E[\varepsilon_i \mid \bX_i] = 0.
+\]
+Note: Under CRD with $\bX_i = [1, T_i]$ this holds. If covariates are included, this does not hold necessarily, but imposes a linearity assumption (see pooled case later on).
+\pause
+\vspace{0.8em}
+
+\begin{itemize}
+  \item \textbf{Unbiasedness:}
+  \[
+    \E[\hat{\bm{\beta}} \mid \bX] = \bm{\beta}^\ast.
+  \]
+  \pause
+  \vspace{0.8em}
+
+  \item \textbf{Finite-sample variance (sandwich form):}
+  \[
+    \Var(\hat{\bm{\beta}} \mid \bX)
+    = \underbrace{\color{blue}{(\bX^\top \bX)^{-1}}}_{\text{Bread}}
+      \;\underbrace{\color{red}{\bX^\top \bm{\Omega} \bX}}_{\text{Meat}}\;
+      \underbrace{\color{blue}{(\bX^\top \bX)^{-1}}}_{\text{Bread}},
+  \]
+  where
+  \[
+    \bm{\Omega} = \diag(\sigma_1^2, \ldots, \sigma_n^2),
+    \qquad \sigma_i^2 = \Var(\varepsilon_i \mid \bX_i).
+  \]
+  
+  \pause
+  \vspace{0.5em}
+  This is the foundation for all robust (EHW/HC2) and homoskedastic OLS variance formulas.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Homoskedasticity}
+\small
+\begin{itemize}
+  \item \textbf{Assumption:} Errors have constant variance  
+  \[
+  \Var(\varepsilon_i \mid \bX_i) = \sigma^2.
+  \]
+  \pause
+  Then
+  \[
+  \Var(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \bm{\Omega} \bX}
+    \color{blue}{(\bX^\top \bX)^{-1}}
+  = \color{red}{\sigma^2}\,\color{blue}{(\bX^\top \bX)^{-1}}.
+  \]
+  \pause
+  \vspace{0.4em}
+  This assumption is often unrealistic in applied settings.
+  \pause
+  \vspace{1em}
+
+  \item \textbf{Example} (binary treatment, CRD): Let $\bX_i = [1, T_i]^\top$.  
+  Then
+  \[
+  (\bX^\top \bX)^{-1}
+  = 
+  \left(
+  \begin{bmatrix}
+  \sum_i 1 & \sum_i T_i \\[3pt]
+  \sum_i T_i & \sum_i T_i^2
+  \end{bmatrix}
+  \right)^{-1}
+  = \frac{1}{n_1 n_0}
+  \begin{bmatrix}
+  n_1 & -n_1 \\[3pt]
+  -n_1 & n
+  \end{bmatrix}.
+  \]
+  \pause
+  Hence
+  \[
+  \Var(\hat{\beta}_T \mid \bX)
+  = \sigma^2\!\left(\frac{1}{n_1} + \frac{1}{n_0}\right).
+  \]
+  \pause
+  \vspace{0.3em}
+  Only valid if treatment and control variances are equal:
+  \[
+  \Var(Y(1)) = \Var(Y(0)) = \sigma^2.
+  \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heteroskedasticity: Eicker–Huber–White (EHW, HC0)}
+\small
+\begin{itemize}
+  \item \textbf{Motivation:} Allow error variances to differ across $i$.
+  \pause
+  \vspace{0.5em}
+  \item \textbf{HC0 (EHW) estimator:}
+  \[
+  \widehat{\Var}(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \diag(\hat{\varepsilon}_i^2)\,\bX}
+    \color{blue}{(\bX^\top \bX)^{-1}},
+  \]
+  where $\hat{\varepsilon}_i = Y_i - \bX_i^\top \hat{\bm{\beta}}$.
+  \pause
+  \vspace{1em}
+
+  \item \textbf{Example} (binary treatment, CRD)
+  \[
+  \Var(\hat{\beta}_T \mid \bX)
+  = \frac{\tilde{\sigma}_1^2}{n_1} + \frac{\tilde{\sigma}_0^2}{n_0},
+  \]
+  where
+  \[
+  \tilde{\sigma}_t^2 = \frac{1}{n_t}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  \pause
+  \vspace{0.5em}
+  \item This estimator is typically too small (biased downward).  
+  \pause
+  \vspace{0.3em}
+  Following Neyman’s correction, we would like to have
+  \[
+  \hat{\sigma}_t^2
+  = \frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  \pause
+  \vspace{0.3em}
+  HC0 is \emph{consistent} but biased in finite samples.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heteroskedasticity: HC2}
+\small
+\begin{itemize}
+  \item \textbf{Idea:} Correct HC0’s downward bias using leverage adjustment.
+  \pause
+  \vspace{0.4em}
+  \item \textbf{HC2 estimator:}
+  \[
+  \widehat{\Var}(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \diag\!\left(\frac{\hat{\varepsilon}_i^2}{1 - p_{ii}}\right)\bX}
+    \color{blue}{(\bX^\top \bX)^{-1}},
+  \]
+  where $p_{ii} = \bX_i^\top(\bX^\top\bX)^{-1}\bX_i$ is the leverage of observation $i$.
+  \pause
+  \vspace{1em}
+
+  \item \textbf{In a CRD with $\bX_i = [1,T_i]^\top$:}
+  \[
+  p_{ii}
+  = \frac{1}{n_1n_0}
+    \begin{bmatrix}1\\T_i\end{bmatrix}^\top
+    \begin{bmatrix}
+      n_1 & -n_1 \\[3pt]
+      -n_1 & n
+    \end{bmatrix}
+    \begin{bmatrix}1\\T_i\end{bmatrix}
+  = \frac{1}{n_1}T_i + \frac{1}{n_0}(1-T_i).
+  \]
+  \pause
+  Thus
+  \[
+  \frac{1}{1-p_{ii}} =
+  \begin{cases}
+    \frac{n_1}{n_1-1}, & T_i=1,\\[4pt]
+    \frac{n_0}{n_0-1}, & T_i=0.
+  \end{cases}
+  \]
+  \pause
+  \vspace{0.5em}
+  This correction yields the \textbf{Neyman variance}:
+  \[
+  \Var(\hat{\beta}_T \mid \bX)
+  = \frac{\hat{\sigma}_1^2}{n_1} + \frac{\hat{\sigma}_0^2}{n_0},
+  \quad
+  \hat{\sigma}_t^2 = \frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  \pause
+  In very small samples, adjust further by scaling with $\tfrac{n}{n-(K+1)}$ or use \textbf{HC3}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Regression with No Covariates}
+\small
+\textbf{Setup.} Recall \(Y_i(t) = \alpha + \beta t + \varepsilon_i(t)\).  
+Regressing \(Y \sim [1, T]\) yields (without assumptions)
+\pause
+\begin{align*}
+\hat\alpha &= \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i \;=\; \overline{Y}_0, \\[4pt]
+\hat\beta_{\text{DiM}} &= \frac{1}{n_1}\sum_{i=1}^n T_i Y_i 
+\;-\; \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i.
+\end{align*}
+\pause
+\textbf{Interpretation.}  
+\(\hat\beta_{\text{DiM}}\) is the difference-in-means (DiM) estimator.
+\pause
+\medskip
+
+\textbf{Variance.}  
+Using HC2 variance estimation (Neyman’s formula),
+\[
+\widehat{\Var}(\hat\beta_{\text{DiM}}) = 
+\frac{\hat\sigma_1^2}{n_1} + \frac{\hat\sigma_0^2}{n_0}, 
+\quad 
+\hat\sigma_t^2 = \frac{1}{n_t-1}\sum_{i:T_i=t}(Y_i-\overline{Y}_t)^2.
+\]
+\pause
+Thus, OLS with an intercept and binary \(T_i\) reproduces the classical difference-in-means (DiM) estimator.
+\end{frame}
+
+\begin{frame}{Linear Regression with Covariates (Pooled) (1/3)}
+\textbf{Motivation.} Even under randomization, covariates can be imbalanced; adjusting for \(X\) can improve precision.
+
+\pause
+\vspace{0.6em}
+\textbf{Pooled (ANCOVA) model.}
+\[
+Y_i \;=\; \alpha \;+\; \beta\,T_i \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i.
+\]
+
+\pause
+\vspace{0.8em}
+\textbf{Interpretation (parallel slopes).}
+\[
+\begin{aligned}
+T_i=1:\quad & Y(1) \;=\; \alpha + \beta \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i,\\[3pt]
+T_i=0:\quad & Y(0) \;=\; \alpha \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i.
+\end{aligned}
+\]
+
+\pause
+\vspace{0.6em}
+\emph{Key assumption:} a common slope \(\bm{\gamma}\) for both groups.
+\end{frame}
+
+\begin{frame}{Linear Regression with Covariates (Pooled) (2/3)}
+\small
+
+\textbf{Normal equations (univariate \(X\)).} OLS residuals are orthogonal to each regressor:
+\[
+\sum_{i=1}^n \hat\varepsilon_i = 0, 
+\qquad 
+\sum_{i=1}^n T_i\,\hat\varepsilon_i = 0, 
+\qquad 
+\sum_{i=1}^n X_i\,\hat\varepsilon_i = 0.
+\]
+
+\pause
+\vspace{0.4em}
+From the first two,
+\[
+\bar Y \;=\; \hat\alpha + \hat\beta\,\frac{n_1}{n} + \hat\gamma\,\bar X,
+\qquad
+\bar Y_1 \;=\; \hat\alpha + \hat\beta + \hat\gamma\,\bar X_1.
+\]
+(Equivalently, using \(\sum (1-T_i)\hat\varepsilon_i=0\): \(\bar Y_0=\hat\alpha+\hat\gamma\,\bar X_0\).)
+
+\pause
+\vspace{0.4em}
+\textbf{Eliminate \(\hat\alpha\):}
+\[
+\hat\beta
+\;=\;
+(\bar Y_1 - \bar Y_0)\;-\;\hat\gamma\,(\bar X_1 - \bar X_0) \;=\;
+\hat\beta_{\text{DiM}}\;-\;\hat\gamma\,(\bar X_1 - \bar X_0).
+\]
+
+\pause
+\vspace{0.6em}
+\textbf{Bias (finite sample).} With pre-treatment \(X\) and CRD,
+\[
+\E[\hat\beta]
+\;=\; \E\!\big[Y(1)-Y(0)\big]
+\;-\; \underbrace{\E\!\big[\hat\gamma\,(\bar X_1-\bar X_0)\big]}_{\neq 0, \Cov(\hat\gamma,\bar X_1-\bar X_0)\neq 0} \neq \E\!\big[Y(1)-Y(0)\big].
+\]
+Under random sampling and CRD, \(\bar X_1-\bar X_0=O_p(n^{-1/2})\) so the bias vanishes as \(n\to\infty\).
+\end{frame}
+
+\begin{frame}{Linear Regression with Covariates (Pooled) (3/3)}
+
+
+\textbf{Variance (heuristic).}
+If \(\E[Y\mid T,X]=\alpha+\beta T+\gamma X\) and homoskedasticity holds,
+\[
+\Var(\hat\beta_{\text{P}} \mid T, X)
+\;\approx\;
+\Var(\hat\beta_{\text{DiM}} \mid T, X)\,\big(1 - R^2_{Y\sim X}\big),
+\]
+where \(R^2_{Y\sim X}\) is from regressing \(Y\) on \((1,X)\).
+Thus variance decreases with predictive power of \(X\); without correct specification this reduction is not guaranteed.
+
+\pause
+\vspace{1em}
+\textbf{Takeaway.}
+\begin{itemize}
+  \item \(\hat\beta_{\text{P}} \to \beta\) (consistent), but not necessarily unbiased in finite samples.
+  \pause
+  \item If \(\bX\) is predictive of \(Y\), this regression can reduce variance.
+  \pause
+  \item However, if the model is misspecified (e.g., treatment and control have different covariate effects), efficiency gains may be lost or even reversed.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Regression with Covariates (Interacted) (1/2)}
+\small
+\textbf{Idea.} The pooled model assumes equal slopes for treatment and control.
+To relax this, we allow interaction terms between treatment and covariates.
+\pause
+\[
+Y_i = \alpha + \beta T_i + \bm{\gamma}^\top \tilde{\bX}_i + \bm{\delta}^\top (T_i \tilde{\bX}_i) + \varepsilon_i,
+\]
+where \(\tilde{\bX}_i = \bX_i - \overline{\bX}\) (demeaned covariates).
+\pause
+
+\textbf{Interpretation.}
+\begin{align*}
+T_i = 1 &:~ Y(1) = \alpha + \beta + \bm{\delta}^\top \tilde{\bX}_i + \varepsilon_i, \\[3pt]
+T_i = 0 &:~ Y(0) = \alpha + \bm{\gamma}^\top \tilde{\bX}_i + \varepsilon_i.
+\end{align*}
+\pause
+Treatment and control now have different intercepts and covariate effects.
+
+\pause
+\textbf{Imputation form.}
+The estimated treatment effect can be written as
+\[
+\hat{\beta}_{\text{I}}
+= \frac{1}{n}\sum_{i=1}^n
+\big[T_i(Y_i - \widehat{Y}_i(0)) + (\widehat{Y}_i(1) - Y_i)(1-T_i)\big],
+\]
+where
+\[
+\widehat{Y}_i(t)
+= \hat\alpha + \hat\beta_{\text{I}}t + \hat{\bm{\gamma}}^\top \tilde{\bX}_i + \hat{\bm{\delta}}^\top (t\tilde{\bX}_i).
+\]
+\end{frame}
+
+\begin{frame}{Linear Regression with Covariates (Interacted) (2/2)}
+\small
+\textbf{Assumptions:} SUTVA, complete randomization (CRD), and random sampling.
+\pause
+\vspace{0.8em}
+
+\textbf{Main results:}
+\begin{itemize}
+  \item \textbf{Consistency:} 
+  \[
+  \hat\beta_{\text{I}} \;\xrightarrow{p}\; \tau = \E[Y_i(1) - Y_i(0)].
+  \]
+  \pause
+  \item \textbf{Asymptotic normality:}
+  \[
+  \sqrt{n}\,(\hat\beta_{\text{I}} - \tau)
+  \;\xrightarrow{d}\;
+  \mathcal{N}\!\left(0,\,\sigma_{\text{I}}^2\right).
+  \]
+  \pause
+  \item \textbf{Efficiency:}
+  \[
+  \sigma_{\text{I}}^2 \;\le\; \sigma_{\text{DiM}}^2
+  \quad\text{and}\quad
+  \sigma_{\text{I}}^2 \;\le\; \sigma_{\text{P}}^2.
+  \]
+  That is, the interacted regression is at least as efficient as DiM or pooled OLS.
+  \pause
+  \item \textbf{Variance estimation:}  
+  The HC2 (heteroskedasticity-robust) variance estimator is consistent for \(\hat\beta_{\text{I}}\).
+\end{itemize}
+\pause
+\bigskip
+\textbf{Key insight:} These results hold \emph{even if the regression model is misspecified}, the interacted (Lin, 2013) approach remains valid under randomization.
+\end{frame}
+
+
+\begin{frame}{Question}
+ \centering
+  {\Large \textbf{Any Questions?}}\\[1em]
+  {\Large \textbf{Good luck!}}\\[1em]
+  {\Large You’ve got this! Go show off those causal superpowers.}
+\end{frame}
+
+
+
+
+
+
+\end{document}

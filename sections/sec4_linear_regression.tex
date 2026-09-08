@@ -1,0 +1,858 @@
+\documentclass[11pt]{exam}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{enumitem} 
+\usepackage{comment}
+\usepackage{mdframed}
+%\textwidth=5.5in
+%\textheight=8.75in
+\pagestyle{headandfoot}
+\firstpageheadrule
+\runningheadrule
+\usepackage{style/header}
+\rhead{\name}
+\lhead{\class}
+\cfoot{Page~\thepage}
+
+
+\usepackage{latexsym,multirow}
+\usepackage{amssymb,amsmath,bm}
+\usepackage{graphicx}
+\usepackage[color,all,import,arrow]{xy}
+\usepackage{booktabs}
+
+%% === bibliography packages ===
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+%% === hyperref options ===
+\usepackage{xcolor}
+\usepackage[pdftex, bookmarksopen=true, bookmarksnumbered=true,
+pdfstartview=FitH, breaklinks=true, urlbordercolor={0 1 0}, citebordercolor={0 0 1}]{hyperref}
+\usepackage{colortbl}
+\usepackage{subfigure}
+\usepackage{subcaption}
+
+%% == tikz
+\usepackage{tikz}
+\usepackage{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+
+% === dcolumn package ===
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+% === theorem package ===
+\usepackage{theorem}
+\theoremstyle{plain}
+\theoremheaderfont{\scshape}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{defi}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newenvironment{proof}{\paragraph{Proof:}}{\hfill$\square$}
+
+% === some special symbols
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\qed}{\hfill \ensuremath{\Box}}
+\newcommand{\ind}{\mbox{$\perp\!\!\!\perp$}}
+\newcommand{\nind}{\mbox{$\not\perp\!\!\!\perp$}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bx}{\bm{x}}
+\newcommand{\bY}{\bm{Y}}
+\newcommand{\by}{\bm{y}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\Yone}{Y(1)}
+\newcommand{\Yzero}{Y(0)}
+\newcommand{\ATE}{\mathrm{ATE}}
+\usepackage{booktabs,tabularx}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+
+\newcommand{\name}{Section 4: Linear Regression}
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+
+\section{Overview}
+Recall that regressing $Y$ on a single predictor $X$ via
+\[
+Y = \alpha + \beta X + \varepsilon, \qquad \E[\varepsilon]=0,
+\]
+estimates a \emph{linear association} between $X$ and $Y$, not necessarily a causal effect. The goal of this section is to interpret $\beta$ causally,
+
+\section{Structural Linear Models}
+\subsection{Setup}
+Let $i=1,\ldots,n$ index units, $T_i\in\{0,1\}$ be a binary treatment, and $Y_i$ denote the outcome of interest. Throughout we are assuming SUTVA such that $Y_i = Y_i(T_i)$ and an i.i.d draw from a super-population $\{T_i, Y_i(0), Y_i(1)\}_{i=1}^n \sim \mathbb{P}^\ast$.
+
+% \paragraph{Homogeneous (constant additive) effect model.}
+% Assume a constant additive effect:
+% \begin{align*}
+%   Y_i(t) \;=\; \alpha + \beta t + \varepsilon_i, 
+%   \qquad t\in\{0,1\}, \qquad \E[\varepsilon_i]=0.
+% \end{align*}
+% Then $\E[Y_i(0)] = \alpha$ and the unit-level effect is fixed: $Y_i(1)-Y_i(0)=\beta$ for all $i$.
+% You might object that this is strong (as in Fisher’s sharp null when $\beta=0$), but we can rewrite the general nonparametric model in an equivalent linear-in-$t$ form without assuming homogeneity.
+
+\subsection{Potential Outcomes as Linear Models}
+Define
+\[
+\alpha_i := Y_i(0), 
+\qquad 
+\beta_i := Y_i(1)-Y_i(0),
+\qquad
+\alpha := \E[\alpha_i] = \E[Y_i(0)], 
+\qquad 
+\beta := \E[\beta_i] = \E[Y_i(1)-Y_i(0)].
+\]
+Then, for $t\in\{0,1\}$,
+\begin{align*}
+Y_i(t) 
+&= Y_i(0) + \big(Y_i(1)-Y_i(0)\big) t \\
+&= \E[Y_i(0)] + \big(Y_i(0) - \E[Y_i(0)]\big) +  \E[Y_i(1)-Y_i(0)]\,t + \big(Y_i(1)-Y_i(0) - \E[Y_i(1)-Y_i(0)]\big)\,t \\
+&=\alpha + (\alpha_i-\alpha) + \beta\,t + (\beta_i-\beta)\,t \\
+&= \alpha + \beta\,t + \underbrace{(\beta_i-\beta)\,t + (\alpha_i-\alpha)}_{=:~\varepsilon_i(t)} \\
+&= \alpha + \beta\,t + \varepsilon_i(t).
+\end{align*}
+By construction, $\E[\varepsilon_i(t)]=0$ for each $t\in\{0,1\}$. Hence, \emph{without} assuming any parametric assumptions we can write the potential outcomes in a linear form:
+\begin{equation}\label{eq:po_lm}
+Y_i(t) \;=\; \alpha + \beta t + \varepsilon_i(t), 
+\qquad \E[\varepsilon_i(t)]=0,
+\end{equation}
+where the error term depends on $t$ and is thus called the \emph{heterogeneous} linear model. Thus regressing $Y_i\sim[1,\,T_i]$ targets $\beta=\E[Y_i(1)-Y_i(0)]$.
+
+\paragraph{Beyond binary $T$.}
+For multi-valued \emph{categorical} $T$, we can introduce indicators and proceed analogously without imposing further assumptions. For a \emph{continuous} $T$, writing $Y_i(t)=\alpha_i+\beta_i t$ does impose linearity in $t$ (constant marginal effect $\partial Y_i(t)/\partial t=\beta_i$), which is a parametric assumption.
+
+\subsection{The Homogeneous Model}
+
+If we compare the above with the \emph{homogeneous} linear model
+\begin{align*}
+  Y_i(t) \;=\; \alpha + \beta t + \varepsilon_i, 
+  \qquad t\in\{0,1\}, \qquad \E[\varepsilon_i]=0,
+\end{align*}
+with the error term independent of $t$, then the homogeneous model implies an \emph{constant additive} effect: $Y_i(1) - Y_i(0) = \beta$ for all $i = 1, \ldots, n$. This is a strong assumption (compare with the sharp null from earlier chapters) and underlines the importance of allowing the error term to depend on the treatment. However, the homogeneous and heterogeneous specifications share the same ATE, $\beta=\E[\beta_i]$, and are observationally indistinguishable from the data.
+
+\subsection{Why Linear Regression?}
+The advantage of viewing potential outcomes as linear models is that we can easily generalize them to incorporate covariates, for example,
+\[
+Y_i \;=\; \alpha \;+\; \beta\,T_i \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i.
+\]
+In experimental studies this can decrease the variance of our estimates and in observational studies this can make the strong ignorability assumption more believable. In this module, we study the experimental setup. We start with a review of the most important linear regression facts.
+
+\section{Linear Regression Review}
+\subsection{The Linear Model}
+Consider the linear model
+\[
+    \bY = \bX \bm{\beta}^\ast + \bm{\varepsilon},
+\]
+where
+  \[
+  \bY =
+  \begin{bmatrix}
+  Y_1 \\ \vdots \\ Y_n
+  \end{bmatrix}, \quad
+  \bX =
+  \begin{bmatrix}
+  1 & X_{11} & \cdots & X_{K1} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  1 & X_{n1} & \cdots & X_{Kn}
+  \end{bmatrix}, \quad
+  \bm{\beta}^\ast =
+  \begin{bmatrix}
+  \beta^\ast_0 \\ \vdots \\ \beta^\ast_K
+  \end{bmatrix}.
+\]
+Since we have not specified $\bm{\varepsilon}$, this model (so far) does not impose any parametric assumption. Traditionally, estimation is done with the Ordinary Least Squares (OLS) estimator:
+\[
+    \hat{\bm{\beta}} = \argmin_{\bm{\beta}} \|\bY - \bX \bm{\beta}\|_2,
+  \]
+  which leads to the closed-form solution:
+  \[
+    \hat{\bm{\beta}} = (\bX^\top \bX)^{-1} \bX^\top \bY
+    = \left(\frac{1}{n}\sum_{i=1}^n \bX_i \bX_i^\top\right)^{-1}
+      \left(\frac{1}{n}\sum_{i=1}^n \bX_i Y_i\right),
+  \]
+  where $\bX_i = [1, X_{1i}, \ldots, X_{Ki}]^\top$.
+The OLS estimator gives the \emph{best linear approximation} of $\E[Y_i \mid \bX_i]$.
+
+\begin{assumption}[Strict exogeneity]
+    \[
+    \E[\varepsilon_i \mid \bX_i] = 0.
+    \]
+\end{assumption}
+This assumption implies that the error term is \emph{uncorrelated} with the covariates, $\Cov(\bm{\varepsilon}, \bX) = \bm{0}$. In a randomized design, this is indeed true, as the following lemma shows.
+
+\begin{lemma}[Randomized Assignment implies Strict Exogeneity]\label{lem:randomized_assignment_implies_strict_exogeneity}
+    Recall the linear model of Equation~\eqref{eq:po_lm}. Assuming randomized assignment, $\{Y_i(0), Y_i(1)\} \perp T_i$ for all $i$, we have
+    \[
+    \E[\epsilon_i(T_i) \mid T_i] = 0
+    \]
+\end{lemma}
+\begin{proof}
+Recall
+    \begin{align*}
+        \epsilon_i(T_i) &= (\beta_i - \beta) T_i + (\alpha_i - \alpha) = ((Y_i(1) - Y_i(0)) - \E[Y_i(1) - Y_i(0)]) T_i + (Y_i(0) - \E[Y_i(0)])
+    \end{align*}
+such that under randomization and i.i.d. sampling
+\begin{align*}
+    \E[\epsilon_i(T_i) \mid T_i] = (\E[Y_i(1) - Y_i(0)] - \E[Y_i(1) - Y_i(0)]) T_i + \E[Y_i(0)] - \E[Y_i(0)] = 0.
+\end{align*}
+\end{proof}
+
+However, as we will see, if covariates are included, strict exogeneity does not necessarily hold under a CRD. Instead, it imposes a \emph{linearity} assumption.
+
+\begin{lemma}
+    Assuming strict exogeneity, then the following holds
+    \begin{itemize}
+        \item \textbf{Unbiasedness.}
+  \[
+    \E[\hat{\bm{\beta}} \mid \bX] = \bm{\beta}^\ast.
+  \]   
+  \item \textbf{Finite-sample variance (sandwich form).}
+  \[
+    \Var(\hat{\bm{\beta}} \mid \bX)
+    = \underbrace{\color{blue}{(\bX^\top \bX)^{-1}}}_{\text{Bread}}
+      \;\underbrace{\color{red}{\bX^\top \bm{\Omega} \bX}}_{\text{Meat}}\;
+      \underbrace{\color{blue}{(\bX^\top \bX)^{-1}}}_{\text{Bread}},
+  \]
+  where
+  \[
+    \bm{\Omega} = \diag(\sigma_1^2, \ldots, \sigma_n^2),
+    \qquad \sigma_i^2 = \Var(\varepsilon_i \mid \bX_i).
+  \]
+  This is the foundation for all robust (EHW/HC2) and homoskedastic OLS variance formulas.
+    \end{itemize}
+\end{lemma}
+
+\subsection{Variance}
+\subsubsection{Homoskedasticity}
+Typically in OLS, we assume that the variance is homoskedastic.
+\begin{assumption}[Homoskedasticity]\label{ass:homoskedasticity}
+    Errors have constant variance  
+  \[
+  \Var(\varepsilon_i \mid \bX_i) = \sigma^2.
+  \]
+\end{assumption}
+
+Assumption~\ref{ass:homoskedasticity} then recovers the well known variance formula.
+\[
+  \Var(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \bm{\Omega} \bX}
+    \color{blue}{(\bX^\top \bX)^{-1}}
+  = \color{red}{\sigma^2}\,\color{blue}{(\bX^\top \bX)^{-1}}.
+  \]
+However, this assumption os often unrealistic in practice in causal inference application, as it assumes that the variance in treatment and control is equal. Often, the variance of treatment exceeds the variance in control, as the treatment injects additional noise. For example, giving a new drug to patients may have many unintended consequences on the outcome compared to giving a placebo. 
+
+\begin{example}
+  Recall the model in Equation~\eqref{eq:po_lm} and let $\bX_i = [1, T_i]^\top$.  
+  Then under CRD we have
+  \[
+  (\bX^\top \bX)^{-1}
+  = 
+  \left(
+  \begin{bmatrix}
+  \sum_i 1 & \sum_i T_i \\[3pt]
+  \sum_i T_i & \sum_i T_i^2
+  \end{bmatrix}
+  \right)^{-1}
+  = \frac{1}{n_1 n_0}
+  \begin{bmatrix}
+  n_1 & -n_1 \\[3pt]
+  -n_1 & n
+  \end{bmatrix}.
+  \]
+    Thus, 
+    \[
+    (\bX^\top \bX)_{22}^{-1} = \frac{n}{n_1 n_0} = \frac{1}{\sum_{i=1}^n (T_i-\overline T)^2}
+    \]
+  under CRD.
+  Assuming that $\Var(\epsilon_i(0)) =\Var(Y(1))= \Var(Y(0)) = \Var(\epsilon_i(1))$ (equal variance of treatment and control), which by random sampling implies (by Lemma~\ref{lem:randomized_assignment_implies_strict_exogeneity}) $\Var(\epsilon_i) = \Var(\epsilon_j) = \sigma^2$ that
+  \[
+  \Var(\hat{\beta}_T \mid \bX)
+  = \sigma^2\!\left(\frac{1}{n_1} + \frac{1}{n_0}\right).
+  \]
+    The typical plug-in estimator is given by
+    \[
+    \widehat{\Var}(\hat\beta_T\mid T)
+    \;=\;
+    \frac{\hat\sigma^2}{\sum_{i=1}^n (T_i-\overline T)^2},
+    \qquad
+    \hat\sigma^2 \;=\; \frac{1}{n-2}\sum_{i=1}^n \hat\varepsilon_i^{\,2}.
+    \]
+  
+    However, if homoskedasticity does not hold and $\sigma_1^2 = \Var(Y(1)) \neq \Var(Y(0)) = \sigma_0^2$ then the true Neymann variance is
+    \[
+    \frac{\sigma_1^2}{n_1} + \frac{\sigma_0^2}{n_0}.
+    \] 
+    Hence, we obtain a bias
+    \[
+    \mathrm{Bias}
+    \;=\;
+    \E\!\left[\frac{\hat\sigma^2}{\sum_{i=1}^n (T_i-\overline T)^2}\right]
+    -
+    \left(\frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0}\right)
+    \;=\;
+    \frac{(n_1-n_0)(n-1)}{n_1n_0(n-2)}\,(\sigma_1^2-\sigma_0^2),
+    \]
+    which vanishes if either $n_1=n_0$ (balanced design) or $\sigma_1^2=\sigma_0^2$ (homoskedastic). The bias may be positive or negative, so it is not uniformly conservative and hence this variance estimator cannot be used in practice.
+\end{example}
+
+\subsubsection{Heteroskedasticity: Eicker–Huber–White (EHW, HC0)}
+As we have seen, it is important that the variance is allowed to vary across units. One estimator that takes that into account is the Eicker–Huber–White (EHW or HC0) estimator, which is given by
+ \[
+  \widehat{\Var}_{\mathrm{HC0}}(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \diag(\hat{\varepsilon}_i^2)\,\bX}
+    \color{blue}{(\bX^\top \bX)^{-1}},
+  \]
+  where $\hat{\varepsilon}_i = Y_i - \bX_i^\top \hat{\bm{\beta}}$.
+We compare this again to our example of regression $Y_i \sim [1, T_i]$
+\begin{example}
+Recall the model in Equation~\eqref{eq:po_lm} and let $\bX_i = [1, T_i]^\top$. Then using the HC0 variance estimator we obtain
+    \[
+  \widehat{\Var}_{\mathrm{HC0}}(\hat{\beta}_T \mid \bX)
+  = \frac{\tilde{\sigma}_1^2}{n_1} + \frac{\tilde{\sigma}_0^2}{n_0},
+  \]
+  where
+  \[
+  \tilde{\sigma}_t^2 = \frac{1}{n_t}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  However, this underestimates the variance. Indeed, following Neyman’s correction, we would like to have
+  \[
+    \widehat{\Var}(\hat{\beta}_T \mid \bX) = \frac{\hat\sigma_1^2}{n_1} + \frac{\hat\sigma_0^2}{n_0}.
+    \] 
+    where
+  \[
+  \hat{\sigma}_t^2
+  = \frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  Thus, in this case, HC0 is \emph{consistent} but biased in finite samples.
+\end{example}
+
+\subsubsection{Heteroskedasticity: HC2}
+The idea of the HC0 estimator is to correct HC0’s downward bias using leverage adjustment.
+\[
+  \widehat{\Var}_{\mathrm{HC2}}(\hat{\bm{\beta}} \mid \bX)
+  = \color{blue}{(\bX^\top \bX)^{-1}}
+    \color{red}{\bX^\top \diag\!\left(\frac{\hat{\varepsilon}_i^2}{1 - p_{ii}}\right)\bX}
+    \color{blue}{(\bX^\top \bX)^{-1}},
+  \]
+  where $p_{ii} = \bX_i^\top(\bX^\top\bX)^{-1}\bX_i$ is the leverage of observation $i$.
+
+\begin{example}
+  Recall the model in Equation~\eqref{eq:po_lm} and let $\bX_i = [1, T_i]^\top$. 
+    \[
+  p_{ii}
+  = \frac{1}{n_1n_0}
+    \begin{bmatrix}1\\T_i\end{bmatrix}^\top
+    \begin{bmatrix}
+      n_1 & -n_1 \\[3pt]
+      -n_1 & n
+    \end{bmatrix}
+    \begin{bmatrix}1\\T_i\end{bmatrix}
+  = \frac{1}{n_1}T_i + \frac{1}{n_0}(1-T_i).
+  \]
+  Thus
+  \[
+  \frac{1}{1-p_{ii}} =
+  \begin{cases}
+    \frac{n_1}{n_1-1}, & T_i=1,\\[4pt]
+    \frac{n_0}{n_0-1}, & T_i=0.
+  \end{cases}
+  \]
+  This correction yields the Neyman variance:
+  \[
+  \widehat{\Var}_{\mathrm{HC2}}(\hat{\beta}_T \mid \bX)
+  = \frac{\hat{\sigma}_1^2}{n_1} + \frac{\hat{\sigma}_0^2}{n_0},
+  \quad
+  \hat{\sigma}_t^2 = \frac{1}{n_t-1}\sum_{i:T_i=t}\big(Y_i-\overline{Y}_t\big)^2.
+  \]
+  In very small samples, adjust further by scaling with $\tfrac{n}{n-(K+1)}$ or use \emph{HC3}.
+\end{example}
+
+\section{Linear Models in Experiments}
+It is worth to recall our assumptions which are valid throughout this section. 
+Let $i=1,\ldots,n$ index units, $T_i\in\{0,1\}$ be a binary treatment, and $Y_i$ denote the outcome of interest. Throughout we are assuming SUTVA such that $Y_i = Y_i(T_i)$ and an i.i.d draw from a super-population $\{T_i, Y_i(0), Y_i(1)\}_{i=1}^n \sim \mathbb{P}^\ast$. We further assume a CRD such that $\{Y_i(0), Y_i(1)\} \perp T_i$ for all $i$.
+
+\subsection{Linear Regression with No Covariates}
+Recall the model in Equation~\eqref{eq:po_lm},
+\[
+Y_i(t) \;=\; \alpha + \beta t + \varepsilon_i(t).
+\]
+This suggests regressing the observational data
+\[
+Y_i \;=\; \alpha + \beta T_i + \varepsilon_i.
+\]
+We already know by Lemma~\ref{lem:randomized_assignment_implies_strict_exogeneity} that this will yield unbiased estimates $\E[\hat\beta] = \E[Y_i(1) - Y_i(0)]$. The next lemma shows that in this case we will recover the classic difference-in-means (DiM) estimator.
+\begin{lemma}
+Let $\{(Y_i,T_i)\}_{i=1}^n$ with $T_i\in\{0,1\}$. Then regressing $Y_i = \alpha + \beta T_i + \epsilon_i$
+yields
+\begin{align*}
+\hat\alpha &= \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i \;=\; \bar Y_{0},\\
+\hat\beta  &= \frac{1}{n_1}\sum_{i=1}^n T_i Y_i \;-\; \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i \;=\; \widehat\tau,
+\end{align*}
+where $n_1 = \sum_{i=1}^n, n_0 = n - n_1$.
+\end{lemma}
+
+\begin{proof}
+Write the OLS slope as
+\[
+\hat\beta
+=\frac{\sum_{i=1}^n (T_i-\bar T)(Y_i-\bar Y)}{\sum_{i=1}^n (T_i-\bar T)^2}.
+\]
+\emph{Denominator.} Since $T_i\in\{0,1\}$,
+\[
+\sum_{i=1}^n (T_i-\bar T)^2
+= n_1(1-\bar T)^2+n_0(0-\bar T)^2
+= \frac{n_1n_0}{n}.
+\]
+\emph{Numerator.} Because $\sum_i (Y_i-\bar Y)=0$,
+\[
+\sum_{i=1}^n (T_i-\bar T)(Y_i-\bar Y)
+= \sum_{i=1}^n T_i(Y_i-\bar Y)
+= \sum_{i:T_i=1} (Y_i-\bar Y)
+= n_1(\bar Y_1-\bar Y).
+\]
+With $\bar Y=(n_1\bar Y_1+n_0\bar Y_0)/n$ we have
+\[
+\bar Y_1-\bar Y
+= \bar Y_1-\frac{n_1\bar Y_1+n_0\bar Y_0}{n}
+= \frac{n_0}{n}\,(\bar Y_1-\bar Y_0).
+\]
+Hence the numerator equals $\tfrac{n_1n_0}{n}(\bar Y_1-\bar Y_0)$, and dividing by the denominator gives
+\[
+\hat\beta=\bar Y_1-\bar Y_0.
+\]
+Finally,
+\[
+\hat\alpha=\bar Y-\hat\beta\,\bar T
+= \frac{n_1\bar Y_1+n_0\bar Y_0}{n}-\frac{n_1}{n}(\bar Y_1-\bar Y_0)
+= \bar Y_0.
+\]
+\end{proof}
+
+Using the HC2 variance estimator recovers,
+\[
+\widehat{\Var}_{\mathrm{HC2}}(\hat\beta_{\text{DiM}} \mid \bm{T}) = 
+\frac{\hat\sigma_1^2}{n_1} + \frac{\hat\sigma_0^2}{n_0}, 
+\quad 
+\hat\sigma_t^2 = \frac{1}{n_t-1}\sum_{i:T_i=t}(Y_i-\overline{Y}_t)^2.
+\]
+Thus, OLS with an intercept and binary \(T_i\) using HC2 variance estimation reproduces the classical difference-in-means (DiM) estimator with Neymann variance.
+
+\subsection{Linear Regression with Covariates (Pooled)}
+Even under randomization, covariates can be imbalanced between treatment and control; adjusting for \(X\) can improve precision and lower the variance. This suggest considering the \emph{pooled} (ANCOVA) model
+\begin{equation}\label{eq:pooled}
+    Y_i \;=\; \alpha \;+\; \beta\,T_i \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i.
+\end{equation}
+Note that since we include covariates, even under CRD, exogeneity might not hold. Instead, the model in Equation~\eqref{eq:pooled} assumes a \emph{linear} effect of the covariates on the outcomes, which will also bias our estimate for $\beta$.
+
+This model is called the pooled model, as it assumes that the slopes between treatment and control are the same (common $\bm{\gamma}$)
+\[
+\begin{aligned}
+T_i=1:\quad & Y(1) \;=\; \alpha + \beta \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i,\\[3pt]
+T_i=0:\quad & Y(0) \;=\; \alpha \;+\; \bm{\gamma}^\top \bX_i \;+\; \varepsilon_i.
+\end{aligned}
+\]
+
+\begin{example}[Pooled model in the univariate case]\label{ex:pooled}
+To get an intuition for the model in Equation~\eqref{eq:pooled} consider the simplified case where $X_i \in \R$. Then the normal equation of the OLS regressor imply
+\[
+\sum_{i=1}^n \hat\varepsilon_i = 0, 
+\qquad 
+\sum_{i=1}^n T_i\,\hat\varepsilon_i = 0, 
+\qquad 
+\sum_{i=1}^n X_i\,\hat\varepsilon_i = 0.
+\]
+
+From the first two,
+\[
+\bar Y \;=\; \hat\alpha + \hat\beta\,\frac{n_1}{n} + \hat\gamma\,\bar X,
+\qquad
+\bar Y_1 \;=\; \hat\alpha + \hat\beta + \hat\gamma\,\bar X_1.
+\]
+(Equivalently, using \(\sum (1-T_i)\hat\varepsilon_i=0\): \(\bar Y_0=\hat\alpha+\hat\gamma\,\bar X_0\).)
+Eliminating \(\hat\alpha\) yields
+\[
+\hat\beta
+\;=\;
+(\bar Y_1 - \bar Y_0)\;-\;\hat\gamma\,(\bar X_1 - \bar X_0) \;=\;
+\hat\beta_{\text{DiM}}\;-\;\hat\gamma\,(\bar X_1 - \bar X_0).
+\] 
+Thus this model yields a bias
+\[
+\E[\hat\beta]
+\;=\; \E\!\big[Y(1)-Y(0)\big]
+\;-\; \underbrace{\E\!\big[\hat\gamma\,(\bar X_1-\bar X_0)\big]}_{\neq 0, \Cov(\hat\gamma,\bar X_1-\bar X_0)\neq 0, \hat\gamma \text{ depends on } (X_0, X_1)} \neq \E\!\big[Y(1)-Y(0)\big].
+\]
+Under random sampling and CRD, \(\bar X_1-\bar X_0=O_p(n^{-1/2})\) so the bias vanishes as \(n\to\infty\).
+
+Let's consider the variance of the estimator. If the model is correctly specified, \(\E[Y\mid T,X]=\alpha+\beta T+\gamma X\) and homoskedasticity holds, then
+\[
+\Var(\hat\beta_{\text{P}} \mid T, X)
+\;\approx\;
+\Var(\hat\beta_{\text{DiM}} \mid T, X)\,\big(1 - R^2_{Y\sim X}\big),
+\]
+where \(R^2_{Y\sim X}\) is from regressing \(Y\) on \((1,X)\).
+Thus variance decreases with predictive power of \(X\); without correct specification this reduction is not guaranteed.
+\end{example}
+
+The intuition of Example~\ref{ex:pooled} holds more generally. Indeed, we have the key properties of the pooled linear regression in experiments
+\begin{itemize}
+  \item \(\hat\beta_{\text{P}} \to \beta\) (consistent), but not necessarily unbiased in finite samples.
+  \item If \(\bX\) is predictive of \(Y\), this regression can reduce variance.
+  \item However, if the model is misspecified (e.g., treatment and control have different covariate effects), efficiency gains may be lost or even reversed.
+\end{itemize}
+
+\subsection{Linear Regression with Covariates (Interacted)}
+The pooled model assumes equal slopes for treatment and control.
+To relax this, we allow interaction terms between treatment and covariates.
+\[
+Y_i = \alpha + \beta T_i + \bm{\gamma}^\top \tilde{\bX}_i + \bm{\delta}^\top (T_i \tilde{\bX}_i) + \varepsilon_i,
+\]
+where \(\tilde{\bX}_i = \bX_i - \overline{\bX}\) (demeaned covariates). Demeaning is important, as otherwise our estimates for $\beta$ won't be consistent anymore. This issue was not present in the pooled case, as $\alpha$ can absorb the covariates mean. This model is called \emph{interacted}, as now parallel slope assumption of the pooled model is relaxed
+\begin{align*}
+T_i = 1 &:~ Y(1) = \alpha + \beta + \bm{\delta}^\top \tilde{\bX}_i + \varepsilon_i, \\[3pt]
+T_i = 0 &:~ Y(0) = \alpha + \bm{\gamma}^\top \tilde{\bX}_i + \varepsilon_i.
+\end{align*}
+Treatment and control now have different intercepts and covariate effects. 
+The estimated treatment effect can be written as
+\[
+\hat{\beta}_{\text{I}}
+= \frac{1}{n}\sum_{i=1}^n
+\big[T_i(Y_i - \widehat{Y}_i(0)) + (\widehat{Y}_i(1) - Y_i)(1-T_i)\big],
+\]
+where
+\[
+\widehat{Y}_i(t)
+= \hat\alpha + \hat\beta_{\text{I}}t + \hat{\bm{\gamma}}^\top \tilde{\bX}_i + \hat{\bm{\delta}}^\top (t\tilde{\bX}_i).
+\]
+This is also called the \emph{imputation} form.
+
+Under our assumptions, most importantly randomization, and minor regularity conditions this interacted model has some great properties, proved by \citet{lin2013agnostic}.
+
+\begin{enumerate}
+  \item \textbf{Consistency:} 
+  \[
+  \hat\beta_{\text{I}} \;\xrightarrow{p}\; \tau = \E[Y_i(1) - Y_i(0)].
+  \]
+  \item \textbf{Asymptotic normality:}
+  \[
+  \sqrt{n}\,(\hat\beta_{\text{I}} - \tau)
+  \;\xrightarrow{d}\;
+  \mathcal{N}\!\left(0,\,\sigma_{\text{I}}^2\right).
+  \]
+  \item \textbf{Efficiency:}
+  \[
+  \sigma_{\text{I}}^2 \;\le\; \sigma_{\text{DiM}}^2
+  \quad\text{and}\quad
+  \sigma_{\text{I}}^2 \;\le\; \sigma_{\text{P}}^2.
+  \]
+  That is, the interacted regression is at least as efficient as DiM or pooled OLS.
+  \item \textbf{Variance estimation:}  
+  The HC2 (heteroskedasticity-robust) variance estimator is consistent for \(\hat\beta_{\text{I}}\).
+  \item \textbf{Robustness:}
+  These results hold even if the model is misspecified!
+\end{enumerate}
+
+\subsection{Linear Regression in Practice}
+Under randomization, we can follow the recipe described below
+\begin{enumerate}
+  \item Center covariates: $\tilde{\bX}_i = \bX_i - \overline{\bX}$.
+  \item Fit $Y\sim[1,T,\tilde \bX,T\tilde \bX]$. If $n$ is small, fall back to DiM estimation.
+  \item Report $\hat\beta$ with HC2 (or HC3 for small $n$) and a 95\% CI. 
+\end{enumerate}
+
+
+% \newpage
+
+% \subsection{Identification}
+% However, we do not observe $Y_i(t)$ but only $Y_i = Y_i(T_i)$ (assuming SUTVA) Can we still regress $Y \sim T$ and interpret the slope causally? The heterogeneous linear representation implies
+% \[
+% Y_i \;=\; Y_i(T_i) \;=\; \alpha + \beta\, T_i + \varepsilon_i(T_i).
+% \]
+% Regressing $Y \sim [1, T]$,  we obtain the estimate by the usual OLS formula
+% \[
+% \hat \beta = \frac{\sum_{i=1}^n (T_i - \bar T_i) (Y_i - \bar Y_i)}{\sum_{i=1}^n (T_i - \bar T_i)^2} \to \frac{\Cov(Y_i, T_i)}{\Var(T_i)},
+% \]
+% under i.i.d. sampling as $n \to \infty$. The above heterogeneous linear representation implies 
+% \[
+% \frac{\Cov(Y_i, T_i)}{\Var(T_i)} = \frac{\beta \Var(T_i) + \Cov(\varepsilon_i(T_i), T_i) }{\Var(T_i)} = \beta + \frac{\Cov(\varepsilon_i(T_i), T_i) }{\Var(T_i)}.\,
+% \]
+% In order to obtain unbiased causal effects we need that $\Cov(\varepsilon_i(T_i), T_i) = 0$, which is implied (equivalent in the binary case) by $\E[\epsilon_i(T_i) \mid T_i] = 0$. The next Lemma shows that this is indeed the case under our usual assumptions.
+
+% \begin{lemma}
+%     Let $T_i\in\{0,1\}$, assuming randomized assignment, $\{Y_i(0), Y_i(1)\} \perp T_i$ for all $i$ and i.i.d. sampling $\{Y_i(0), Y_i(1)\} \sim \mathbb{P}^\ast$. Then $\E[\epsilon_i(T_i) \mid T_i] = 0$. Thus regressing $Y \sim [1, T]$ yields consistent estimates.
+% \end{lemma}
+% \begin{proof}
+% Recall
+%     \begin{align*}
+%         \epsilon_i(T_i) &= (\beta_i - \beta) T_i + (\alpha_i - \alpha) = ((Y_i(1) - Y_i(0)) - \E[Y_i(1) - Y_i(0)]) T_i + (Y_i(0) - \E[Y_i(0)])
+%     \end{align*}
+% such that under randomization and i.i.d. sampling
+% \begin{align*}
+%     \E[\epsilon_i(T_i) \mid T_i] = (\E[Y_i(1) - Y_i(0)] - \E[Y_i(1) - Y_i(0)]) T_i + \E[Y_i(0)] - \E[Y_i(0)] = 0.
+% \end{align*}
+% \end{proof}
+
+
+% \subsection{Estimation}
+% \begin{lemma}
+% Let $\{(Y_i,T_i)\}_{i=1}^n$ with $T_i\in\{0,1\}$. Then regressing $Y_i = \alpha + \beta T_i + \epsilon_i$
+% yields
+% \begin{align*}
+% \hat\alpha &= \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i \;=\; \bar Y_{0},\\
+% \hat\beta  &= \frac{1}{n_1}\sum_{i=1}^n T_i Y_i \;-\; \frac{1}{n_0}\sum_{i=1}^n (1-T_i)Y_i \;=\; \widehat\tau,
+% \end{align*}
+% where $n_1 = \sum_{i=1}^n, n_0 = n - n_1$.Thus under complete randomization and random sampling, regressing $Y \sim [1, T]$ yields unbiased estimates.
+% \end{lemma}
+
+% \begin{proof}
+% Write the OLS slope as
+% \[
+% \hat\beta
+% =\frac{\sum_{i=1}^n (T_i-\bar T)(Y_i-\bar Y)}{\sum_{i=1}^n (T_i-\bar T)^2}.
+% \]
+% \emph{Denominator.} Since $T_i\in\{0,1\}$,
+% \[
+% \sum_{i=1}^n (T_i-\bar T)^2
+% = n_1(1-\bar T)^2+n_0(0-\bar T)^2
+% = \frac{n_1n_0}{n}.
+% \]
+% \emph{Numerator.} Because $\sum_i (Y_i-\bar Y)=0$,
+% \[
+% \sum_{i=1}^n (T_i-\bar T)(Y_i-\bar Y)
+% = \sum_{i=1}^n T_i(Y_i-\bar Y)
+% = \sum_{i:T_i=1} (Y_i-\bar Y)
+% = n_1(\bar Y_1-\bar Y).
+% \]
+% With $\bar Y=(n_1\bar Y_1+n_0\bar Y_0)/n$ we have
+% \[
+% \bar Y_1-\bar Y
+% = \bar Y_1-\frac{n_1\bar Y_1+n_0\bar Y_0}{n}
+% = \frac{n_0}{n}\,(\bar Y_1-\bar Y_0).
+% \]
+% Hence the numerator equals $\tfrac{n_1n_0}{n}(\bar Y_1-\bar Y_0)$, and dividing by the denominator gives
+% \[
+% \hat\beta=\bar Y_1-\bar Y_0.
+% \]
+% Finally,
+% \[
+% \hat\alpha=\bar Y-\hat\beta\,\bar T
+% = \frac{n_1\bar Y_1+n_0\bar Y_0}{n}-\frac{n_1}{n}(\bar Y_1-\bar Y_0)
+% = \bar Y_0.
+% \]
+% \end{proof}
+
+% \begin{remark}
+% The equality $\hat\beta=\bar Y_1-\bar Y_0$ fails if the intercept is omitted. With an intercept, it holds purely algebraically; no randomization or exogeneity assumptions are required.
+% \end{remark}
+
+% \subsection{Homoskedastic Variance}
+% While the OLS point estimates above are fine, the \emph{usual} OLS standard errors are only correct under homoskedasticity ($\Var(\epsilon_i(0)) = \Var(\epsilon_i(1))$, which by random sampling implies $\Var(\epsilon_i) = \Var(\epsilon_j) = \sigma^2$). With homoskedastic errors,
+% \[
+% \Var(\hat\beta \mid T) \;=\; \frac{\sigma^2}{\sum_{i=1}^n (T_i-\overline T)^2}
+% \;=\; \sigma^2\!\left(\frac{1}{n_1}+\frac{1}{n_0}\right),
+% \]
+% since $\sum_{i=1}^n (T_i-\overline T)^2 = n_1n_0/n$ (under CRD). A plug-in estimator is
+% \[
+% \widehat{\Var}(\hat\beta\mid T)
+% \;=\;
+% \frac{\hat\sigma^2}{\sum_{i=1}^n (T_i-\overline T)^2},
+% \qquad
+% \hat\sigma^2 \;=\; \frac{1}{n-2}\sum_{i=1}^n \hat\varepsilon_i^{\,2}.
+% \]
+% Homoskedasticity holds, for instance, under a constant additive effect with equal within-arm variances.
+
+% If $\sigma_1^2=\Var(\varepsilon_i(1))\neq \Var(\varepsilon_i(0))=\sigma_0^2$, the usual OLS homoskedastic SE is biased, and its bias is given by
+% \[
+% \mathrm{Bias}
+% \;=\;
+% \E\!\left[\frac{\hat\sigma^2}{\sum_{i=1}^n (T_i-\overline T)^2}\right]
+% -
+% \left(\frac{\sigma_1^2}{n_1}+\frac{\sigma_0^2}{n_0}\right)
+% \;=\;
+% \frac{(n_1-n_0)(n-1)}{n_1n_0(n-2)}\,(\sigma_1^2-\sigma_0^2),
+% \]
+% which vanishes if either $n_1=n_0$ (balanced design) or $\sigma_1^2=\sigma_0^2$ (homoskedastic). The bias may be positive or negative, so it is not uniformly conservative.
+
+
+% \subsection{Heteroskedastic Variance}
+
+
+
+% The homoskedastic OLS standard errors are generally invalid when the error variance differs across units or treatment arms. Given a linear model $Y = X \beta + \epsilon$ with $\hat \beta = (X'X)^{-1}X'Y$, conditional on $X$, the exact sampling variance of the OLS estimator is the \emph{sandwich}
+% \begin{align*}
+%     \Var(\hat\theta \mid X)
+%     \;=\;
+%     \underbrace{(X'X)^{-1}}_{\text{Bread}}\,\underbrace{X'\Omega X}_{\text{Meat}}\,\underbrace{(X'X)^{-1}}_{\text{Bread}},
+%     \qquad
+%     \Omega \;=\; \diag(\sigma_1^2,\ldots,\sigma_n^2),\;\; \sigma_i^2=\Var(\epsilon_i\mid X),
+% \end{align*}
+% which reduces to the homoskedastic formula only if $\sigma_i^2\equiv\sigma^2$. In the two–arm case $X=[1,\,T]$ and $\theta=(\alpha,\beta)'$, the \emph{target} variance of the treatment coefficient is
+% \begin{align*}
+%     \Var(\hat \beta \mid T) \;=\; \frac{\sigma_1^2}{n_1} + \frac{\sigma_0^2}{n_0},
+% \end{align*}
+% so any valid estimator must converge to this even when $\sigma_1^2\neq\sigma_0^2$.
+
+% \paragraph{Eicker–Huber–White (HC0).}
+% The EHW estimator replaces the unknown $\Omega$ by the diagonal matrix of squared OLS residuals:
+% \begin{align*}
+%     \widehat{\Var}_{\mathrm{HC0}}(\hat\theta \mid X)
+%     \;=\;
+%     (X'X)^{-1}\!\left(X'\,\diag(\hat\epsilon_1^{\,2},\ldots,\hat\epsilon_n^{\,2})\,X\right)(X'X)^{-1}.
+% \end{align*}
+% In our two–arm design, HC0 for $\hat\beta$ can be written as
+% \begin{align*}
+%     \widehat{\Var}_{\mathrm{HC0}}(\hat \beta \mid T)
+%     \;=\;
+%     \frac{\tilde\sigma_1^2}{n_1} + \frac{\tilde\sigma_0^2}{n_0},
+%     \qquad
+%     \tilde\sigma_t^2 \;=\; \frac{1}{n_t}\sum_{i:T_i=t}(Y_i-\overline Y_t)^2.
+% \end{align*}
+% \emph{Finite–sample issue.} HC0 is typically biased downward in small samples because OLS residuals are ``shrunk'' by leverage. Heuristically,
+% $\E[\hat\epsilon_i^{\,2}\mid X]\approx (1-p_{ii})\,\sigma_i^2$, where $p_{ii}$ is the leverage of unit $i$: the $i$th diagonal of the hat matrix $P_X=X(X'X)^{-1}X'$. So HC0 uses within–arm variances with divisor $n_t$ instead of the unbiased $n_t-1$; the bias is most visible when $n_t$ is small or leverage is uneven.
+
+
+% \paragraph{HC2 (leverage correction).}
+% HC2 inflates each squared residual by the inverse of the leave–one–out factor:
+% \begin{align*}
+%     \widehat{\Var}_{\mathrm{HC2}}(\hat\theta \mid X)
+%     \;=\;
+%     (X'X)^{-1}\!\left(X'\,\diag\!\Big(\frac{\hat\epsilon_i^{\,2}}{1-p_{ii}}\Big)_{i=1}^n\,X\right)(X'X)^{-1}.
+% \end{align*}
+% This removes the leading finite–sample bias from leverage shrinkage and typically brings coverage closer to nominal than HC0. In our two–arm design, HC2 for $\hat\beta$ can be written as
+% \begin{align*}
+%     \widehat{\Var}_{\mathrm{HC2}}(\hat \beta \mid T)
+%     \;=\;
+%     \frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_0^2}{n_0},
+%     \qquad
+%     \hat \sigma_t^2 \;=\; \frac{1}{n_t-1}\sum_{i:T_i=t}(Y_i-\overline Y_t)^2.
+% \end{align*}
+
+
+% \paragraph{Why HC2/EHW beyond two arms.}
+% The equality with Neyman is special to the intercept\,+\,binary $T$ regression. In more general and practically important settings—additional covariates, treatment--covariate interactions (e.g.\ fully interacted ``Lin'' adjustment), multiple arms, or unequal leverage—Neyman's two–variance formula has no direct analogue. By contrast, the HC family (HC0/HC2, and in very small samples HC3) extends immediately:
+% \begin{align*}
+%     \widehat{\Var}(\hat\theta \mid X)
+%     \;=\;
+%     (X'X)^{-1}\!\left(X'\,\diag\!\Big(w_i\,\hat\epsilon_i^{\,2}\Big)X\right)(X'X)^{-1},
+%     \quad
+%     w_i \in \{1,\, (1-p_{ii})^{-1},\, (1-p_{ii})^{-2}\},
+% \end{align*}
+% delivering heteroskedasticity–robust inference under randomization (and, more generally, under standard regression conditions) while accommodating covariate adjustment and complex designs.
+
+
+% \section{Covariate Adjustment}
+% \subsection{Why adjust?}
+% Randomization already identifies the ATE via the difference in means. Covariates $X_i$ can nevertheless improve \emph{precision} by explaining outcome variation within arms. In particular,
+% \[
+% \underbrace{\frac{\Var\!\big(Y(1)\big)}{n_1} + \frac{\Var\!\big(Y(0)\big)}{n_0}}_{\text{Var of DiM}}
+% \;\;\ge\;\;
+% \underbrace{\frac{\E\!\left[\Var\!\big(Y(1)\mid X\big)\right]}{n_1} + \frac{\E\!\left[\Var\!\big(Y(0)\mid X\big)\right]}{n_0}}_{\text{Var of covariate-adjusted estimator}},
+% \]
+% so adjusting by predictive covariates weakly reduces asymptotic variance.
+
+% \subsection{How to adjust}
+% Let $\tilde X_i := X_i - \bar X$ be centered covariates. Regress
+% \[
+% Y_i \;=\; \alpha \;+\; \beta T_i \;+\; \gamma^\top \tilde X_i \;+\; \delta^\top (T_i \tilde X_i) \;+\; \varepsilon_i,
+% \]
+% and take $\hat\beta$ as the treatment effect estimate. This is equivalently running separate OLS of $Y$ on $(1,\tilde X)$ within treatment and control and contrasting the arm-specific predictions:
+% \[\hat Y_i(1)=\hat\alpha+\hat\beta+(\hat\gamma+\hat\delta)^\top \tilde X_i,\qquad
+% \hat Y_i(0)=\hat\alpha+\hat\gamma^\top \tilde X_i,
+% \]
+% \[
+% \widehat\tau_{\mathrm{imp}}
+% =\frac{1}{n}\sum_{i=1}^n\big(\hat Y_i(1)-\hat Y_i(0)\big)
+% =\frac{1}{n}\sum_{i=1}^n\big(\hat\beta+\hat\delta^\top \tilde X_i\big)
+% =\hat\beta.
+% \]
+
+% \subsection{Model Comparison}
+% \paragraph{Unadjusted (DiM).} $Y\sim[1,T]$. Transparent, unbiased under CRD; no efficiency gain.
+% \paragraph{Pooled.} $Y\sim[1,T,\tilde X]$. May \emph{help or hurt} precision in unbalanced designs or when slopes differ; not recommended as a default.
+% \paragraph{Interacted (recommended default).} $Y\sim[1,T,\tilde X,T\tilde X]$. Asymptotically no-worse and typically better precision; robust EHW (HC2/HC3) SEs are valid under CRD. 
+
+% \begin{theorem}[\citep{lin2013agnostic}]
+% Let $(Y_i(0),Y_i(1),X_i)$ be a finite population with $K$ fixed-dimensional, pre-treatment covariates.
+% Consider a completely randomized design with $n_1/n \to p\in(0,1)$, SUTVA, i.i.d. $\{Y_i(0), Y_i(1)\} \sim \mathbb{P}^\ast$ and assume uniformly bounded fourth moments and well-behaved leverage.
+% Let $\tilde X_i := X_i-\bar X$ and estimate
+% \[
+% Y_i \;=\; \alpha + \beta T_i + \gamma^\top \tilde X_i + \delta^\top(T_i\,\tilde X_i) + \varepsilon_i,
+% \]
+% and let $\hat\beta_{\text{Interact}}$ be the OLS coefficient on $T_i$. Denote the super-population ATE by
+% $\tau := \E[Y_i(1)-Y_i(0)]$.
+
+% \medskip
+% \noindent\textbf{(i) Consistency and AN.}
+% As $n\to\infty$,
+% \[
+% \hat\beta_{\text{Interact}} \;\xrightarrow{p}\; \tau,
+% \qquad
+% \sqrt{n}\,(\hat\beta_{\text{Interact}}-\tau) \;\xrightarrow{d}\; \mathcal N(0,\, \sigma^2_{\text{Interact}}).
+% \]
+
+% \medskip
+% \noindent\textbf{(ii) Efficiency dominance.}
+% Let $\sigma^2_{\text{DiM}}$ be the asymptotic variance of the unadjusted difference-in-means and $\sigma^2_{\text{Pooled}}$ that of pooled estimator without $T\times X$ interactions. Then
+% \[
+% \sigma^2_{\text{Interact}} \;\le\; \sigma^2_{\text{DiM}}
+% \quad\text{and}\quad
+% \sigma^2_{\text{Interact}} \;\le\; \sigma^2_{\text{Pooled}},
+% \]
+% with strict inequality unless (a) $X$ has no predictive power for $Y(t)$ (for the first inequality) and, for the second, unless special cases hold (e.g., equal group sizes or common slopes that render interactions redundant).
+
+% \medskip
+% \noindent\textbf{(iii) Variance estimation.}
+% A heteroskedasticity-robust sandwich SE (e.g., HC2/HC3) for $\hat\beta_{\text{Interact}}$ is consistent (asymptotically conservative), yielding valid large-sample inference under the CRD.
+% \end{theorem}
+
+% \subsection{Practical Recipe}
+% \begin{enumerate}
+%   \item Pre-specify covariates measured \emph{pre}-treatment that plausibly predict $Y$ (keep $K \ll n_t$ and avoid near-collinearity).
+%   \item Center covariates: $\tilde X_i=X_i-\bar X$. Fit $Y\sim[1,T,\tilde X,T\tilde X]$.
+%   \item Report $\hat\beta$ with HC2 (or HC3 if very small $n$) and a 95\% CI; optionally show the unadjusted DiM as a transparency check.
+%   \item Note that precision gains depend on how predictive $X$ is (often modest in social experiments). 
+% \end{enumerate}
+% \endgroup
+\endgroup
+\bibliography{references}
+
+\end{document}

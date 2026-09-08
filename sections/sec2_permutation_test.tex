@@ -1,0 +1,484 @@
+\documentclass[11pt]{exam}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath,bm}
+\usepackage[pdftex]{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{dsfont}
+\usepackage{mathtools}
+\usepackage{enumitem} 
+\usepackage{comment}
+\usepackage{mdframed}
+%\textwidth=5.5in
+%\textheight=8.75in
+\pagestyle{headandfoot}
+\firstpageheadrule
+\runningheadrule
+\usepackage{style/header}
+\rhead{\name}
+\lhead{\class}
+\cfoot{Page~\thepage}
+
+
+\usepackage{latexsym,multirow}
+\usepackage{amssymb,amsmath,bm}
+\usepackage{graphicx}
+\usepackage[color,all,import,arrow]{xy}
+\usepackage{booktabs}
+
+%% === bibliography packages ===
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+%% === hyperref options ===
+\usepackage{xcolor}
+\usepackage[pdftex, bookmarksopen=true, bookmarksnumbered=true,
+pdfstartview=FitH, breaklinks=true, urlbordercolor={0 1 0}, citebordercolor={0 0 1}]{hyperref}
+\usepackage{colortbl}
+\usepackage{subfigure}
+\usepackage{subcaption}
+
+%% == tikz
+\usepackage{tikz}
+\usepackage{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+
+% === dcolumn package ===
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+% === theorem package ===
+\usepackage{theorem}
+\theoremstyle{plain}
+\theoremheaderfont{\scshape}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{defi}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newenvironment{proof}{\paragraph{Proof:}}{\hfill$\square$}
+
+% === some special symbols
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\qed}{\hfill \ensuremath{\Box}}
+\newcommand{\ind}{\mbox{$\perp\!\!\!\perp$}}
+\newcommand{\nind}{\mbox{$\not\perp\!\!\!\perp$}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\indicator}[1]{\mathds{1}{\left\{ #1 \right\}}}
+\newcommand{\indist}{\overset{d}{\to}}
+\newcommand{\inprob}{\overset{p}{\to}}
+\newcommand{\as}{\overset{a.s.}{\to}}
+\newcommand{\Nb}[1]{\mathcal{N}{\left( #1 \right)}}
+
+\newcommand{\bS}{\bar{s}}
+\newcommand{\bs}{\bar{s}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\Yone}{Y(1)}
+\newcommand{\Yzero}{Y(0)}
+\newcommand{\ATE}{\mathrm{ATE}}
+\newcommand{\lt}{\left}
+\newcommand{\rt}{\right}
+\newcommand{\bY}{\bm{Y}}
+\newcommand{\bT}{\bm{T}}
+ %Indicator
+\newcommand{\Ind}[1]{\mathds{1}_{\lt\{ #1 \rt\}}}
+
+\newcommand{\name}{Section 2: Permutation Test}
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+\section{Overview}
+
+\textbf{Setup:}
+\begin{itemize}
+      \item Units: $i = 1,\ldots,n$
+      \item Treatment: $T_i \in \{0,1\}$
+      \item Outcome: $Y_i = Y_i(T_i)$
+      \item Finite-Population framework: potential outcomes $\mathcal{O}_n=\{Y_i(0),Y_i(1)\}_{i=1}^n$ are fixed and the only randomness is the assignment mechanism $T$.
+      \item Completely Randomized Design (CRD): $\Pr(T_i=1\mid \mathcal{O}_n)=\Pr(T_1=1)=\tfrac{n_1}{n}$ 
+\end{itemize}
+
+\noindent
+\textbf{Goal:} Test for 
+\begin{enumerate}
+    \item Sharp Null: $H_0(\tau_0): Y(1) - Y_i(0) = \tau_0 \quad \text{for all } i$
+    \item Maximal Effect: $H^{\text{max}}_0(\tau_0): Y_i(1) - Y_i(0) \leq \tau_0 \quad \text{for all } i$
+    \item Quantile Effect: $H^\alpha_0(\tau_0): Q_{Y_i(1) - Y_i(0)}(\alpha) \leq \tau_0 \quad \text{for all } i$; $Q_X(\alpha) = \inf\{x \in \R: \Pr(X \leq x) \geq \alpha\}$ (for $\alpha$ percent of the population the treatment effect is smaller than $\tau_0$).
+\end{enumerate}
+
+
+
+
+\section{Fisher's Sharp Null}
+We test the sharp null of constant treatment effect,
+\[
+H_0(\tau_0):\quad Y_i(1)-Y_i(0)=\tau_0\quad\forall i.
+\]
+There are several implications when we consider the special case $\tau_0 = 0$. In this case the null assumes that the population only consists of Always-Takers and Never-Takers. There is an interesting paper \citep{christy2025countingdefiersdesignbasedmodel} that provides an alternative in terms of how the strata distribution looks like when $H_0(0)$ is rejected. It furthers implies that there are no spillover effects within the population. 
+
+\subsection{Permutation Tests}
+Define a test statistic based on observables $S_\tau = f(\bT, \bY, \tau)$ that you believe has power against the null. For example, use
+\[
+    S_{\tau_0}=\frac{1}{n_1}\sum_{i=1}^n T_i\,Y_i(T_i)\;-\;\frac{1}{n_0}\sum_{i=1}^n (1-T_i)\,(Y_i(T_i) + \tau_0)
+\]
+There are many possibilities, but calibrating the test statistic to $\E[S_{\tau_0} \mid H_0] = 0$ makes inference easier. This is a special case of an important \emph{difference-in-means} class of test statistics, defined by
+\[
+    S_{\tau_0, \phi_1, \phi_0}= \sum_{i=1}^n T_i \phi_1(Y_i(T_i)) - \sum_{i=1}^n (1-T_i)\,\phi_0(Y_i(T_i))
+\]
+with $\phi_1(y) = \frac{y}{n_1}$ and $\phi_0(y) = \frac{y + \tau_0}{n_0}$.
+
+Given a test statistic, we want to test it against the null, i.e., obtain valid p-values, confidence intervals and a point estimate for $\tau$.
+
+The basis for all of that is to perform a so called permutation test:
+\begin{itemize}
+  \item Draw $b = 1,\ldots,B$ random assignments $\bm{T}^{(b)} \in \{0,1\}^n$.
+  \item Compute potential outcomes under each assignment:
+  \begin{itemize}
+    \item If $T_i^{(b)} = T_i$: $Y_i(T_i^{(b)}) = Y_i(T_i)$
+    \item If $(T_i^{(b)}, T_i) = (0,1)$: $Y_i(T_i^{(b)}) = Y_i(0) = Y_i(1) - \tau_0 = Y_i(T_i) - \tau_0$
+    \item If $(T_i^{(b)}, T_i) = (1,0)$: $Y_i(T_i^{(b)}) = Y_i(1) = Y_i(0) + \tau_0 = Y_i(T_i) + \tau_0$
+  \end{itemize}
+  \item Recalculate the test statistic:
+  \[
+  S_{\tau_0}^{(b)} = 
+  \frac{1}{n_1}\sum_{i=1}^n T_i^{(b)}\,Y_i(T_i^{(b)})
+  - 
+  \frac{1}{n_0}\sum_{i=1}^n (1-T_i^{(b)})\,(Y_i(T_i^{(b)}) + \tau_0).
+  \]
+\end{itemize}
+
+\paragraph{P-values.}
+We then calculate the p-values depending on the alternative.
+\begin{align*}
+H_1:\ \tau \neq \tau_0 &\quad\Rightarrow\quad
+p_{\text{perm}}(\tau_0)=\frac{1+\sum_{b=1}^B \indicator{|S^{(b)}-\mu|\ge|S_{\tau_0}^{\text{obs}}-\mu|}}{B+1}. \\[2mm]
+H_1:\ \tau>\tau_0 &\quad\Rightarrow\quad
+p_{\text{perm},+}(\tau_0)=\frac{1+\sum_{b=1}^B \indicator{S^{(b)} \ge S_{\tau_0}^{\text{obs}}}}{B+1}.\\[2mm]
+H_1:\ \tau<\tau_0 &\quad\Rightarrow\quad
+p_{\text{perm},-}(\tau_0)=\frac{1+\sum_{b=1}^B \indicator{S^{(b)} \le S_{\tau_0}^{\text{obs}}}}{B+1}.
+\end{align*}
+where $\mu = \E[S_{\tau_0} \mid H_0(\tau_0)]$; here $\mu = 0$.
+Alternatively, the two sided p-values can also be obtain from the one-sided p-values
+\[
+p_{\text{perm}}(\tau_0) = 2 \cdot \min(p_{\text{perm},+}(\tau_0), p_{\text{perm},-}(\tau_0)).
+\]
+
+\paragraph{Normal Approximation}
+Some test statistics, like the one above, can be approximated by a normal distribution. Indeed, we will show in the next module that under the null $H_0(\tau_0)$ we have
+\[
+Z=\frac{\sqrt{n}(S^{\text{obs}}_{\tau_0} - \mu)}{\sqrt{\sigma_n^2}} \indist \Nb{0, 1},
+\]
+where $\mu = \E[S^{\text{obs}}_{\tau_0}\mid H_0(\tau_0)]$ (here $\mu = 0$) and $\sigma_n^2 = S^2\left(\frac{1}{n_1} + \frac{1}{n_0}\right)$, $S^2 \equiv S(t)^2=\frac{1}{n-1}\sum_{i=1}^n\big(Y_i(t)-\overline{Y}(t)\big)^2$ for $t \in \{0, 1\}$ under $H_0$ (which can be estimated by $\hat\sigma_t = \frac{1}{n_t - 1} \sum_{i:T_i = t} (Y_i - \overline{Y}_t)^2$). P-values can then be obtained by
+\begin{align*}
+H_1:\ \tau \neq \tau_0 &\quad\Rightarrow\quad p_{\text{norm}}(\tau_0)=2\{1-\Phi(|Z|)\}.\\[2mm]
+H_1:\ \tau>\tau_0 &\quad\Rightarrow\quad p_{\text{norm},+}(\tau_0)=1-\Phi(Z),\\[2mm]
+H_1:\ \tau<\tau_0 &\quad\Rightarrow\quad p_{\text{norm},-}(\tau_0)=\Phi(Z),
+\end{align*}
+where $\Phi$ is the CDF of the standard normal distribution.
+
+\paragraph{Confidence set.}
+We can obtain a $(1-\alpha)$ confidence set by inverting the test,
+\[
+\mathcal C_{1-\alpha}=\{\tau:\ p(\tau)>\alpha\},
+\]
+where \(p(\tau)\) is the p\textendash value for \(H_0(\tau)\).
+If the test statistic is monotone in \(\tau\), then \(\mathcal C_{1-\alpha}\) is an interval.
+In practice, evaluate $p(\tau)$ over a grid and keep all $\tau$ with $p(\tau) > \alpha$.
+
+\paragraph{Point estimate.}
+\[
+\hat\tau=\operatorname*{arg\,max}_{\tau}\ p(\tau).
+\]
+
+\paragraph{Permutation Inference vs. Normal Approximation.}
+
+$\medskip$
+
+\textbf{Permutation Inference}
+\begin{itemize}
+    \item Pro: Sample size $n$ can be small (no large-sample assumption), for $B \to \infty$ recovers \emph{exact} p-values (under the sharp null)
+    \item Cons: Computational cost grows with $B$, especially when inverting the test
+\end{itemize}
+
+\textbf{Normal Approximation}
+\begin{itemize}
+    \item Pro: Very fast, closed form p-values formula
+    \item Cons: Need large sample size $n$ for the asymptotics to kick in
+\end{itemize}
+
+
+\paragraph{Pros and Cons of the Difference-in-Means Test Statistics}
+\begin{itemize}
+  \item \textbf{Pros}: $Y_i$ can be binary, categorical, or continuous; also work for the maximal hypothesis $H^{\text{max}}_0(\tau_0)$
+  \item \textbf{Cons}: Can be less powerful with heavy tails; sensitive to outliers. Not distribution-free (test statistic scales with the scale of the outcomes, depends on the actual outcome values), so it cannot test quantile hypothesis $H^\alpha_0(\tau_0)$
+\end{itemize}
+This motivates looking at rank score tests, for example the Wilcoxon’s rank-sum test.
+
+% \begin{itemize}
+%     \item \textbf{Pros}: $Y_i$ can be binary, categorical, or continuous
+%     \item \textbf{Cons}: May be less powerful; sensitive to outliers; rank-based versions mitigate this (although they require non-binary $Y_i$), sum based tests statistics are often not distribution free, quantile effects can only be tested by distribution free test statistics (like rank sum tests, but usually not sum based tests). Note that to test maximal effects we can use both.
+% \end{itemize}
+
+
+\subsection{Wilcoxon’s rank-sum test}
+In this section we require non-binary outcomes $Y_i \notin \{0, 1\}$ or count outcomes with many ties. Often the rank sum tests are used for continuous outcomes. We still assume the sharp null, but now the test statistic is given by
+% We assume that $Y_i(0)\overset{\text{iid}}{\sim}F_0$, $Y_i(1)\overset{\text{iid}}{\sim}F_1$, and test the mean-shift (location-shift) null
+% \[
+% H_0:\ Y_i(0)+\tau_0 \sim F_1 \quad\text{(equivalently, } Y_i(1)-\tau_0 \sim F_0\text{)}.
+% \]
+% Note that this implies: $\mathbb{E}[Y(1)] = \mathbb{E}[Y(0)] + \tau_0.$ Also note that if Fisher’s sharp null holds, then the mean-shift null also holds, but not conversely. In order to test the null, we consider
+\[
+S_\tau \;=\; \sum_{i=1}^n T_i\,R_i\!\big(\bm Y-\tau\bm T\big),
+\]
+with $R_i(\cdot)$ the rank among all $n$ adjusted outcomes (average ranks for ties). 
+This test statistic has important characteristics.
+
+\paragraph{Invariance under \(H_0\):} Let \(\bm T,\bm A\in\{0,1\}^n\) be two treatment assignments. Under $H_0(\tau_0)$ we have
+  \[
+    \bm Y(\bm T)-\tau_0\bm T \;=\; \bm Y(0) \;=\; \bm Y(\bm A)-\tau_0\bm A,
+  \]
+  \vspace{-0.5em}
+  since
+  \begin{itemize}
+    \setlength{\itemsep}{4pt}
+    \item \(T_i=1:\; Y_i(T_i)-\tau_0 T_i=Y_i(1)-\tau_0=Y_i(0)\),
+    \item \(T_i=0:\; Y_i(T_i)-\tau_0 T_i=Y_i(0)\).
+  \end{itemize}
+  Thus, under $H_0(\tau_0)$
+  \[
+  S_{\tau_0} = \sum_{i=1}^n T_i\,R_i\!\big(\bm Y-\tau_0\bm T\big) = \sum_{i=1}^n T_i\,R_i\!(\bY(0)) = \sum_{i=1}^n A_i \,R_i\!(\bY(0)),
+  \] 
+  does not depend on \(\tau_0\). This facilitates inference, as we will later see.
+
+\paragraph{Monotonicity} \(S_\tau\) is nonincreasing in \(\tau\); if \(\tau_1<\tau_2\) then \(S_{\tau_1}>S_{\tau_2}\).
+
+
+\paragraph{Inference}
+We can also perform a permutation test for the Wilcoxon’s rank-sum test 
+\begin{itemize}
+  \item Draw $b = 1,\ldots,B$ random assignments $\bm{T}^{(b)} \in \{0,1\}^n$.
+  \item Recalculate the test statistic:
+  \[
+  S_{\tau_0}^{(b)} = \sum_{i=1}^n T^b_i\,R_i\!\big(\bm Y-\tau\bm T\big)
+  \]
+\end{itemize}
+where we can use the same ranks for every draw and don't have to adjust whats inside the rank by the invariance property.
+
+\paragraph{Normal-Approximation}
+If $n$ is large, a permutation test will take a lot of time. Alternatively, we can perform a normal approximation. The idea is that under $H_0(\tau_0)$ by the invariance property, the distribution of $S_{\tau_0}$ does not depend on $\tau_0$! Even without $H_0$ by the robustness of ranks the mean and variance don't depend on $\tau$
+\[
+\mathbb E[S_\tau\mid\mathcal O_n]=\frac{n_1(n+1)}{2},\qquad
+\mathrm{Var}(S_\tau\mid\mathcal O_n)=\frac{n_0n_1(n+1)}{12}.
+\]
+
+To obtain p-values compute
+\[
+Z=\frac{S^{\text{obs}}_{\tau_0}-E[S_\tau\mid\mathcal O_n]}{\sqrt{\mathrm{Var}(S_\tau\mid\mathcal O_n)}}
+\]
+\begin{align*}
+H_1:\ \tau \neq \tau_0 &\quad\Rightarrow\quad p_{\text{norm}}(\tau_0)=2\{1-\Phi(|Z|)\}.\\[2mm]
+H_1:\ \tau>\tau_0 &\quad\Rightarrow\quad p_{\text{norm},+}(\tau_0)=1-\Phi(Z),\\[2mm]
+H_1:\ \tau<\tau_0 &\quad\Rightarrow\quad p_{\text{norm},-}(\tau_0)=\Phi(Z).
+\end{align*}
+
+We can then invert these p-values to obtain a confidence interval (since $S_\tau$ is monotone) and a point estimate.
+
+
+% \paragraph{p-value (Permutation Inference).}
+% Generate $B$ assignments $\bm{T}^{(b)}$ from the original CRD (fixing $(n_1,n_0)$). Let $R_i$ be the ranks computed from the observed data (we don't need to adjust them for each draws). For each draw, compute
+% \[
+% S^{(b)}=\sum_{i=1}^n T_i^{(b)}\,R_i, \qquad \mu=\frac{n_1(n+1)}{2}.
+% \]
+% The reason why we don't adjust the rank is the following. The test statistic inside the rank is $\bm{Y} (\bm{T}) - \tau \bm T$. Under the sharp null this will always be $\bm{Y}(0)$, no matter the perturbation $\bm{T}^{(b)}$ (see argument above)
+% This means that under the sharp null $S_\tau = f(\bm{T}, \bm{Y}(0))$ but does not depend on $\bm{Y}(1)$. This is a very important characteristic of the rank sum test.
+% \begin{align*}
+% H_1:\ \tau \neq \tau_0 &\quad\Rightarrow\quad
+% p_{\text{perm}}(\tau_0)=\frac{1+\sum_{b=1}^B \Ind{|S^{(b)}-\mu| \ge |S_{\tau_0}^{\text{obs}}-\mu|}}{B+1}. \\[2mm]
+% H_1:\ \tau>\tau_0 &\quad\Rightarrow\quad
+% p_{\text{perm},+}(\tau_0)=\frac{1+\sum_{b=1}^B \Ind{S^{(b)} \ge S_{\tau_0}^{\text{obs}}}}{B+1}.\\[2mm]
+% H_1:\ \tau<\tau_0 &\quad\Rightarrow\quad
+% p_{\text{perm},-}(\tau_0)=\frac{1+\sum_{b=1}^B \Ind{S^{(b)} \le S_{\tau_0}^{\text{obs}}}}{B+1}.
+% \end{align*}
+% Alternative: 
+% \[
+% p_{\text{perm}}(\tau_0) = 2 \cdot \min(p_{\text{perm},+}(\tau_0), p_{\text{perm},-}(\tau_0))
+% \]
+
+
+% \subsection{Inverting the Test}
+% The above does not give us a confidence interval or point estimate. In order to do that, we need to \emph{invert the test}.
+
+% \paragraph{Confidence Interval.}
+% Define the $(1-\alpha)$ confidence set by collecting all $\tau$ not rejected at level $\alpha$:
+% \[
+% \mathcal C_{1-\alpha} \;=\; \{\tau:\ p(\tau) > \alpha\},
+% \]
+% where $p(\tau)$ is the p-values associated with the null hypothesis $H_0(\tau)$.
+% Because $S_\tau$ is monotone in $\tau$, $\mathcal C_{1-\alpha}$ is an interval $[\underline\tau,\overline\tau]$. In practice, evaluate $p(\tau)$ over a grid (normal or permutation) and keep all $\tau$ with $p(\tau)\ge\alpha$.
+
+% \paragraph{Point Estimate.}
+% A natural point estimate $\hat\tau$ “removes” the effect so the statistic hits its null mean:
+% \[
+% S_{\hat\tau}=\frac{n_1(n+1)}{2}.
+% \]
+% Since $S_\tau$ is monotone, take the midpoint between the largest $\tau$ with $S_\tau>\mu$ and the smallest with $S_\tau<\mu$ (equivalently, the $\tau$ maximizing $p(\tau)$).
+
+\section{Maximal Individual Effect}
+The sharp null is very strict and does not allow for treatment effect heterogeneity. However, we can extend the framework to test for the largest unit-level effect \citep{caughey2023randomisation},
+\[
+H^{\max}_0(\tau_0):\ \max_{1\le i\le n}\{Y_i(1)-Y_i(0)\}\ \le\ \tau_0.
+\]
+If the outcomes are binary then $\tau_0 = 1$ is trivially true. Thus we focus on the non binary outcome case.
+
+\paragraph{Insight.}
+Denoting the Wilcoxon rank-sum test statistic for $\tau_0$ as $S_{\tau_0}$ (it does not have to be the Wilcoxon test statistic, difference in means and other rank sum tests also work) we have
+\[
+    \Pr(S_{\tau_0} \geq s \mid H^{\max}_0(\tau_0)) \leq \Pr(S_{\tau_0} \geq s \mid H_0(\tau_0)).
+\]
+Thus if we reject the same test statistic under the one-sided sharp null 
+\[
+p(\tau_0):= \Pr(S_{\tau_0} \geq S_{\tau_0}^{\text{obs}} \mid H_0(\tau_0)) \leq \alpha,
+\]
+with the methods we discussed above, we also safely reject the maximal hypothesis. This yields a valid, but conservative test.
+
+\paragraph{Confidence Interval}
+We can form a corresponding confidence interval by again setting
+\[
+\mathcal C^{\max}_{1-\alpha} \;=\; \{\tau:\ p(\tau) > \alpha\},
+\]
+which for our test statistics will always be an interval of the form $[\underline\tau^{\max}, \infty)$ with $\underline\tau^{\max} = \inf\{\tau: p(\tau) > \alpha \}$. We can do the same in reverse to obtain a $1-\alpha$ interval for the minimum effect $(-\infty, \overline\tau^{\min}]$.
+
+To obtain a two sided interval we first obtain $1-\frac{\alpha}{2}$ confidence intervals $[\underline\tau_{1-\frac{\alpha}{2}}^{\max}, \infty)$ and $(-\infty, \overline\tau_{1-\frac{\alpha}{2}}^{\min}]$. A valid $1-\alpha$ confidence interval is then given by
+\[
+    [\max(\underline\tau_{1-\frac{\alpha}{2}}^{\max} -  \overline\tau_{1-\frac{\alpha}{2}}^{\min}, 0), \infty]
+\]
+
+\paragraph{Proof.}
+We limit ourselves to test statistics of the form $S_{\tau_0}(\bm{T}, \bm{Y}) = S(\bm{T}, \bm{Y}- \tau_0 \bm{T})$. We say that a function $S(\bm{T}, \bm{Y})$ is \emph{effect increasing}, if
+\[
+ S(\bm{T}, \bm{Y} + \bm{T} \bm{\eta} + (1 - \bm{T}) \bm{\zeta}) \geq  S(\bm{T}, \bm{Y}),
+\]
+for $\bm{\eta} \geq 0, \bm{\zeta} \leq 0$. 
+Note that the Wilcoxon rank-sum test statistic is both of the desired functional form ($S_{\tau_0}(\bm{T}, \bm{Y}) = S(\bm{T}, \bm{Y}- \tau_0 \bm{T}) = \sum_{i=1}^n T_i R_i(\bm{Y}- \tau_0 \bm{T})$) and is effect increasing as for each $i$
+\[  
+    T_i R_i(\bm{Y} + \bm{T} \bm{\eta} + (1 - \bm{T}) \bm{\zeta}) \geq T_i R_i(\bm{Y})
+\]
+as we only count the rank of the treated units which are elevated by $\bm{\eta}$ while the control units (which we don't count) are decreased by $\bm{\zeta}$. 
+Denote with $\tau_i = Y_i(1) - Y_i(0)$ the individual treatment effect. Note that 
+\[
+Y_i = Y_i(T_i) = Y_i(1) T_i + Y_i(0) (1-T_i) = Y_i(0) + \tau_i T_i
+\]
+Then for two different treatments we have $T_i, A_i \in \{0, 1\}$ we have
+\begin{align*}
+    (Y_i(T_i) - \tau_0 T_i) - (Y(A_i) - \tau_0 A_i) &= Y_i(0) + (\tau_i - \tau_0) T_i - Y_i(0) - (\tau_i - \tau_0) A_i
+    \\
+    &= (\tau_i - \tau_0) T_i + (\tau_0 - \tau_i) A_i
+    \\
+    &= (\tau_i - \tau_0) T_i + (\tau_0 - \tau_i) A_i + A_i T_i (\tau_i - \tau_0) + A_i T_i (\tau_0 - \tau_i)
+    \\
+    &= (\tau_0 - \tau_i) A_i (1 - T_i) + (\tau_i - \tau_0) (1 - A_i) T_i.
+\end{align*}
+Under $H^{\max}_0(\tau_0)$ we have $\eta_i = (1 - T_i) (\tau_0 - \tau_i) \geq 0$ and $\zeta_i = T_i (\tau_i - \tau_0) \leq 0$ (under the sharp null both would be zero). Assuming an effect-increasing test-statistic $S(\bm{T}, \bm{Y})$, this implies that
+\begin{align*}
+S(\bm{A}, \bm{Y}(\bm{T}) - \tau_0 \bm{T}) &= S(\bm{A}, \bm{Y}(\bm{A}) - \tau_0 \bm{A} + \bm{A} \bm{\eta} + (1 - \bm{A}) \bm{\zeta} )
+\\
+&\geq S(\bm{A}, \bm{Y}(\bm{A}) - \tau_0 \bm{A}).
+\end{align*}
+Finally note that
+\begin{align*}
+    \Pr(S(\bm{A}, \bm{Y}(\bm{A}) - \tau_0 \bm{A}) \geq s \mid H^{\max}_0(\tau_0)) &= \sum_{\bm{a}} \Pr(\bm{A} = a) \Ind{S(\bm{a}, \bm{Y}(\bm{a}) - \tau_0 \bm{a}) \geq s}
+    \\
+    &\leq \sum_{\bm{a}} \Pr(\bm{A} = a) \Ind{S(\bm{a}, \bm{Y}(\bm{T}) - \tau_0 \bm{T}) \geq s}
+    \\
+    &= \Pr(S(\bm{A}, \bm{Y}(\bm{T}) - \tau_0 \bm{T}) \geq s \mid H_0(\tau_0))
+    \\
+    &= \Pr(S(\bm{A}, \bm{Y}(\bm{A}) - \tau_0 \bm{A}) \geq s \mid H_0(\tau_0))
+\end{align*}
+The first equality follows from the finite population assumption where only the treatment is randomized. The second equality follows from $S(\bm{a}, \bm{Y}(\bm{T}) - \tau_0 \bm{T}) \geq S(\bm{a}, \bm{Y}(\bm{a}) - \tau_0 \bm{a})$ under $H^{\max}_0(\tau_0)$. The third equality from the finite population assumption as well and from the fact that under $H_0(\tau_0): \bm{Y}(\bm{T}) - \tau_0 \bm{T} = \bm{Y}(0)$ is independent of $\bm{T}$ and thus we don't need to sum over its randomization. The fourth equality follows since under $H_0(\tau_0): \bm{Y}(\bm{T}) - \tau_0 \bm{T} = \bm{Y}(0) = \bm{Y}(\bm{A}) - \tau_0 \bm{A}$. This proves the claim. 
+
+\section{Quantile Treatment Effects}
+We can even go a step further and test about the quantiles of the treatment effect, i.e., 
+\[
+H^\alpha_0(\tau_0): Q_{Y_i(1) - Y_i(0)}(\alpha) \leq \tau_0 \quad \text{for all } i; Q_X(\alpha) = \inf\{x \in \R: \Pr(X \leq x) \geq \alpha\}.
+\]
+In our finite population context with $n$ units this means testing the null hypothesis
+\[
+H_0^k(\tau_0): \tau_{(k)} \leq \tau_0,
+\]
+where we have sorted the individual treatment effects $\tau_{(1)} \leq \tau_{(2)} \leq \ldots \leq \tau_{(n)}$. Let $\bm \tau = (\tau_1, \ldots, \tau_n)$.
+
+Observe that 
+\begin{align*}
+    H_0^k(\tau_0): \tau_{(k)} \leq \tau_0 \Leftrightarrow \bm{\tau} \in \mathcal{H}^k(\tau_0) := \lt\{ \bm{\delta} \in \R^n : \delta_{(k)} \leq \tau_0 \rt\} =\lt\{ \bm{\delta} \in \R^n : \sum_{i=1}^n\Ind{\delta_i \geq \tau_0} \leq n-k \rt\}
+\end{align*}
+Intuitively, we are testing a maximal treatment hypothesis as before on the $k$-smallest individual treatment effects, while leaving the remaining $n-k$ as free parameters.
+
+We continue to use the Wilcoxon rank-sum test statistic $S_{\bm \tau}$, but we allow the $\tau_i$ to vary in each entry. 
+So how do we obtain a p-value? Recall that for a valid test at level $\alpha$ we can only reject the null if the probability that the null is true is $\alpha$ (so small). Given the equivalence of the null above, that means that we want a test statistic that only rejects if the event $\bm{\tau} \in \mathcal{H}^k(\tau_0)$ has low probability, or,
+\[
+\forall \bm{\tau} \in \mathcal{H}^k(\tau_0): \Pr(S_{\bm \tau} \geq S^{\text{obs}}_{\bm \tau}) \leq \alpha.
+\]
+This is equivalent to
+\begin{align*}
+    \sup_{\bm{\tau} \in \mathcal{H}^k(\tau_0)} p(\bm \tau) := \sup_{\bm{\tau} \in \mathcal{H}^k(\tau_0)} \Pr(S_{\bm \tau} \geq S^{\text{obs}}_{\bm \tau})
+\end{align*}
+This probability can be upper bounded by choosing the smallest possible test statistic $\inf_{\bm{\tau} \in \mathcal{H}^k(\tau_0)} S^{\text{obs}}_{\bm \tau}$. So how do we choose such a minimizing $\bm \tau$? 
+
+Assume we are interested in the $1-\alpha$ quantile.
+First, set $k = \lceil n(1-\alpha) \rceil$, which means that our null does not restrict the remaining $n - k = \lfloor \alpha n \rfloor$ units. To minimize our statistic, we choose among the $n-k$ largest outcome values the treated units and set their maximal effect to $\infty$. One can prove that this is optimal. In other words,
+\begin{align*}
+    \tau^\ast_i = \begin{cases}
+        \infty, & T_i = 1, R_i(\bm{Y}) \geq \min(n-k, n_1)
+        \\
+        \tau_0
+    \end{cases}
+\end{align*}
+The intuition is as follows. We want to minimize our test statistic $S^{\text{obs}}_{\bm \tau} = \sum_{i=1}^n T_i R_i(\bm{Y} - \bm \tau \bm T)$. We make the observations
+\begin{enumerate}
+    \item In order to keep with the $\mathcal{H}^k(\tau_0)$ we need to set at least $k$ values of $\bm \tau$ to $\tau_0$
+    \item In our test statistic $S^{\text{obs}}_{\bm \tau}$ we only sum over the ranks of the treated units, so we want to make these ranks small, while still keeping with the null constrain
+    \item The smallest we can make them is by taking the largest $n-k$ $\bm{Y}$ entries and subtract the largest possible value from them.
+    \item The $n_1$ is a technical condition to ensure we set enough treated units to $\infty$
+\end{enumerate}
+% We set the effect to $\infty$ since this is not only the least restrictive value but also it will reduce their rank $R_i(Y_i(T_i) - \infty T_i)$ to the minimum (if they are treated). Since our test statistic only sums over the treated ranks, and we eliminate the largest treated ranks, this will minimize our test statistic. In other words, set $\bm{\tau}^\ast = (\tau_1^\ast, \ldots, \tau_n^\ast)$ such that
+% \begin{align*}
+%     \tau^\ast_i = \begin{cases}
+%         \infty, & T_i = 1, R_i(\bm{Y}) \geq \min(n-k, n_1)
+%         \\
+%         \tau_0
+%     \end{cases}
+% \end{align*}
+% where we take the $\min(n-k, n_1)$ as a technical condition. Our test statistic of interest is then $S_{\tau^\ast}$. 
+The test can then be inverted to obtain a confidence interval by $\mathcal{C}_{1 - \alpha} = \{\tau_0: \sup_{\bm{\tau} \in \mathcal{H}^k(\tau_0)} p(\bm \tau) \geq \alpha \}$.
+
+\endgroup
+
+\bibliography{references}
+\end{document}

@@ -1,0 +1,518 @@
+\documentclass[11pt]{exam}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{amssymb}
+\usepackage{enumitem} 
+\usepackage{comment}
+\usepackage{mdframed}
+%\textwidth=5.5in
+%\textheight=8.75in
+\pagestyle{headandfoot}
+\firstpageheadrule
+\runningheadrule
+\usepackage{style/header}
+\rhead{\name}
+\lhead{\class}
+\cfoot{Page~\thepage}
+
+
+\usepackage{latexsym,multirow}
+\usepackage{amssymb,amsmath,bm}
+\usepackage{graphicx}
+\usepackage[color,all,import,arrow]{xy}
+\usepackage{booktabs}
+\usepackage{dsfont}
+
+%% === bibliography packages ===
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+%% === hyperref options ===
+\usepackage{xcolor}
+\usepackage[pdftex, bookmarksopen=true, bookmarksnumbered=true,
+pdfstartview=FitH, breaklinks=true, urlbordercolor={0 1 0}, citebordercolor={0 0 1}]{hyperref}
+\usepackage{colortbl}
+\usepackage{subfigure}
+\usepackage{subcaption}
+
+%% == tikz
+\usepackage{tikz}
+\usepackage{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning,shapes.misc,calc}
+
+% === dcolumn package ===
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+
+% === theorem package ===
+\usepackage{theorem}
+\theoremstyle{plain}
+\theoremheaderfont{\scshape}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{defi}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newenvironment{proof}{\paragraph{Proof:}}{\hfill$\square$}
+
+% === some special symbols
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\qed}{\hfill \ensuremath{\Box}}
+\newcommand{\ind}{\mbox{$\perp\!\!\!\perp$}}
+\newcommand{\nind}{\mbox{$\not\perp\!\!\!\perp$}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\providecommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\indist}{\overset{d}{\to}}
+\newcommand{\inprob}{\overset{p}{\to}}
+\newcommand{\as}{\overset{a.s.}{\to}}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bI}{\bm{I}}
+\newcommand{\bH}{\bm{H}}
+\newcommand{\bM}{\bm{M}}
+\newcommand{\bP}{\bm{P}}
+\newcommand{\bQ}{\bm{Q}}
+\newcommand{\bV}{\bm{V}}
+\newcommand{\bU}{\bm{U}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\bW}{\bm{W}}
+\newcommand{\bw}{\bm{w}}
+\newcommand{\bX}{\bm{X}}
+\newcommand{\bY}{\bm{Y}}
+\newcommand{\bT}{\bm{T}}
+\newcommand{\bD}{\bm{D}}
+\newcommand{\bZ}{\bm{Z}}
+\newcommand{\bepsilon}{\bm{\epsilon}}
+\newcommand{\boldeta}{\bm{\eta}}
+\newcommand{\bC}{\bm{C}}
+\newcommand{\bl}{\bm{\ell}}
+\newcommand{\ATT}{\mathrm{ATT}}
+\newcommand{\Yone}{Y(1)}
+\newcommand{\Yzero}{Y(0)}
+\newcommand{\ATE}{\mathrm{ATE}}
+\newcommand{\LATE}{\mathrm{LATE}}
+\newcommand{\ITT}{\mathrm{ITT}}
+\usepackage{booktabs,tabularx}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\IV}{\mathrm{IV}}
+\newcommand{\TSLS}{\mathrm{TSLS}}
+\newcommand{\Nb}[1]{\mathcal{N}{\left( #1 \right)}}
+\newcommand{\indicator}[1]{\mathds{1}{\left\{ #1 \right\}}}
+
+\newcommand{\name}{Section 5: Instrumental Variables}
+\begin{document}
+\input{style/box.tex}
+\begingroup\small
+
+\section{Overview}
+Our goal remains to identify the effect of the treatment $T$ on the outcome $Y$. However, what happens if we have no reason to believe that the treatment is randomized, even under covariate adjustment? Our estimates will be biased. We need some form of randomization. But in many applications, the treatment will not be randomized.
+
+For example when we want to study the effect of smoking on pregnancy, we cannot force expected mothers to smoke (or stop smoking). However, what we can do is to offer smoking mothers a payment for not smoking during the pregnancy. The payment is a form of encouragement, typically called instrument, and we can randomize this! However, in doing so, as we will see later on, we do not recover the Average Treatment Effect $\ATE = \E[Y_i(1) - Y_i(0)]$ but only a conditional (local) average treatment effect: $\LATE = \E[Y_i(1) - Y_i(0) \mid \text{Compliers}]$, where Compliers are a population type for which the payment actually motivated women to stop smoking. 
+
+\section{Binary Instruments and Treatment}
+\subsection{Setup}
+\begin{itemize}
+    \item Instrument: $Z_i \in \{0, 1\}$
+    \item Potential Treatment: $(T_i(0), T_i(1)) \in \{0, 1\}$
+    \item Observed Treatment: $T_i = T_i(Z_i) \in \{0, 1\}$
+    \item Potential Outcome: $Y_i(z, t)$
+    \item Observed Outcome: $Y_i = Y_i(Z_i) = Y_i(Z_i, T_i(Z_i))$
+\end{itemize}
+
+% \textcolor{blue}{add graph}
+
+\subsection{Assumptions}\label{subsec:ass}
+
+\begin{itemize} 
+    \item Randomized Instrument: $Z_i \ind (T_i(z), Y_i(z, t))$ for all $(z, t)$
+    \item Exclusion: $Y_i(z, t) = Y_i(z^\prime, t)$ for $t \in \{0, 1\}$
+    \begin{itemize}
+        \item $Y_i = Y_i(T_i(Z_i))$ (implicitly assuming SUTVA)
+        \item Eliminates the effect of Never-Takers and Always-Takers
+    \end{itemize}    
+    \item Monotonicity:  $T_i(1) \geq T_i(0)$ for all $i$
+    \begin{itemize}
+        \item No Defiers: $\Pr(\text{Defiers}) = 0$ (proportion of Defiers in the population is zero)
+    \end{itemize}
+    \item Relevance: $\Cov(T_i, Z_i) \neq 0$
+    \begin{itemize}
+        \item Overlap: $0 < \Pr(Z_i = 1) < 1$
+        \item Guarantees existence of Compliers: $\Pr(\text{Compliers}) > 0$
+    \end{itemize}
+\end{itemize}
+
+\subsection{Principal Strata}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+         $(T_i(0), T_i(1))$ & Type & Description\\ \hline
+         $(0, 0)$& Never-Takers & Smoke regardless of payment offered \\ \hline
+         $(1, 0)$& Defiers &  Stop smoking only if no payment is offered \\ \hline
+         $(0, 1)$& Compliers & Stop smoking only if payment is offered  \\ \hline
+         $(1, 1)$& Always-Takers & Stop smoking regardless of payment offered \\ \hline
+    \end{tabular}
+    \caption{Principal Strata}
+    \label{tab:principal_strata}
+\end{table}
+
+Consider the following cases in Table~\ref{tab:principal_strata} of what principal strata unit $i$ can belong to
+\begin{itemize}
+    \item If $T_i(0) = 0$: Never-Taker or Complier
+    \item If $T_i(0) = 1$: Defier or Always-Taker, but under monotonicity (no Defiers), must be Always-Taker
+    \item If $T_i(1) = 0$: Never-Taker or Defier,  but under monotonicity (no Defiers), must be Never-Taker
+    \item If $T_i(1) = 1$: Complier or Always-Taker
+\end{itemize}
+Thus, assuming monotonicity, the strata of unit $i$ is identified if $T_i(0) = 1$ (Always-Taker) or if $T_i(1) = 0$ (Never-Taker). 
+
+\textbf{Important}: To what strata a unit belongs to depends on the instrument in question. Different instruments will group units into different strata. This can lead to issues concerning external validity.
+
+\textbf{Real world examples where monotonicity is violated}: payments for: pickup of children from day care, blood donations, vaccinations. Or opting in for organ donations.
+
+
+\subsection{Local Average Treatment Effect (LATE)}
+We define the Average Treatment Effect of the instrument on the outcome as the Intention to Treat Effect $\ITT = \E[Y_i(T_i(1)) - Y_i(T_i(0))]$. By randomization of the instrument, this can be identified by treating the instrument as the treatment on the outcome. However, we are interested in $\ATE = \E[Y_i(1) - Y_i(0)]$. 
+\begin{align*}
+    \ITT &= \E[Y_i(T_i(1)) - Y_i(T_i(0))] \\
+    &= \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Never-Takers}] \Pr(\text{Never-Takers}) 
+    \\
+    &+ \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Defiers}] \Pr(\text{Defiers})
+    \\
+    &+ \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Compliers}] \Pr(\text{Compliers})
+    \\
+    &+ \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Always-Takers}] \Pr(\text{Always-Takers})
+\end{align*}
+By our assumptions, we have
+\begin{align*}
+    \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Never-Takers}] = \E[Y_i(0) - Y_i(0) \mid \text{Never-Takers}] &= 0 \qquad  \text{(by Exclusion)}
+    \\
+    \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Always-Takers}] = \E[Y_i(1) - Y_i(1) \mid \text{Always-Takers}] &= 0 \qquad \text{(by Exclusion)}
+    \\
+    \Pr(\text{Defiers}) = \Pr(T_i(1) < T_i(0)) &= 0 \qquad \text{(by Monotonicity)}
+\end{align*}
+Thus
+\begin{align*}
+    \ITT = \E[Y_i(T_i(1)) - Y_i(T_i(0))] &= \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid \text{Compliers}] \Pr(\text{Compliers})
+    \\
+    &= \E[Y_i(T_i(1)) - Y_i(T_i(0)) \mid T_i(1) > T_i(0)] \Pr(T_i(1) > T_i(0))
+    \\
+     &= \E[Y_i(1) - Y_i(0) \mid T_i(1) > T_i(0)] \Pr(T_i(1) > T_i(0)),
+\end{align*}
+where we obtain the desired $\ATE$ on the compliers in the first term.
+Rearranging yields the Local Average Treatment Effect (or Complier Average Treatment Effect)
+\begin{align*}
+    \LATE = \E[Y_i(1) - Y_i(0) \mid T_i(1) > T_i(0)] = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0))]}{\Pr(T_i(1) > T_i(0))}
+\end{align*}
+This assumes that $\Pr(T_i(1) > T_i(0)) > 0$ which is guaranteed by the relevance assumption, as we will see later on.
+
+
+\subsection{Identification}
+By the above we have 
+\[
+ \LATE = \frac{\ITT}{\Pr(\text{Compliers})}
+\]
+By randomization and the exclusion restriction we have
+\begin{align*}
+    \ITT &= \E[Y_i(T_i(1)) - Y_i(T_i(0))] 
+    \\
+    &= \E[Y_i(T_i(1)) \mid Z_i = 1] - \E[Y_i(T_i(1)) \mid Z_i = 0] \qquad \text{(by randomization)}
+    \\
+    &= \E[Y_i \mid Z_i = 1] - \E[Y_i \mid Z_i = 0] \qquad \text{(by exclusion)}
+\end{align*}
+For $\Pr(\text{Compliers})$ we observe
+\begin{align*}
+    \Pr(\text{Compliers}) &= \Pr(\text{Always-Takers} \cup \text{Compliers}) - \Pr(\text{Always-Takers})
+    \\
+    &= \Pr(T_i(1) = 1) - \Pr(T_i(0) = 1) \qquad \text{(by monotonicity)}
+    \\
+    &= \E[T_i(1)  - T_i(0)]
+    \\
+    &= \Pr(T_i = 1 \mid Z_i = 1) - \Pr(T_i = 1 \mid Z_i = 0) \qquad \text{(by randomization)}
+    \\
+    &= \E[T_i \mid Z_i = 1] - \E[T_i \mid Z_i = 0]
+\end{align*}
+Combining the results we obtain the classical Wald estimand
+\begin{align*}
+\LATE = \frac{\ITT}{\Pr(\text{Compliers})} = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0))]}{\E[T_i(1)  - T_i(0)]}  = \frac{\E[Y_i \mid Z_i = 1] - \E[Y_i \mid Z_i = 0]}{\E[T_i \mid Z_i = 1] - \E[T_i \mid Z_i = 0]} = \frac{\Cov(Y_i, Z_i)}{\Cov(T_i, Z_i)},
+\end{align*}
+where the last equality follows from the following results.
+\begin{lemma}
+    Let $Z \in \{0, 1\}$. Then
+    \[
+    \Cov(A, Z) = \left(\E[A \mid Z = 1] - \E[A \mid Z = 0]\right) \Var(Z)
+    \]
+\end{lemma}
+\begin{proof}
+Note that $\E[Z] = \Pr(Z = 1)$ as $Z \in \{0, 1\}$. Then
+    \begin{align*}
+        \Cov(A, Z) &= \E[A Z] - \E[A] \E[Z]
+        \\
+        &= \E[A \mid Z = 1] \Pr(Z = 1) + 0 - \Pr(Z = 1) (\E[A \mid Z = 1] \Pr(Z = 1) + \E[A \mid Z = 0] \Pr(Z = 0))
+        \\
+        &= \E[A \mid Z = 1]  \Pr(Z = 1) (1 -  \Pr(Z = 1)) - \E[A \mid Z = 0] \Pr(Z = 1) (1- \Pr(Z = 1))
+        \\
+        &= \left(\E[A \mid Z = 1] - \E[A \mid Z = 0]\right)\Pr(Z = 1) (1 - \Pr(Z = 1))
+        \\
+        &= \left(\E[A \mid Z = 1] - \E[A \mid Z = 0]\right) \Var(Z).
+    \end{align*}
+\end{proof}
+
+\subsection{Estimation}
+Let $\overline{Y}_z = \frac{1}{n_z} \sum_{i:Z_i = z} Y_i, \overline{T}_z = \frac{1}{n_z} \sum_{i:Z_i = z} T_i$ where $n_1 = \sum_{i=1}^n Z_i$ and $n_0 = n - n_1$. The Wald estimator is given by
+\begin{align*}
+    \widehat{\LATE}_{\text{Wald}} = \frac{\overline{Y}_1 - \overline{Y}_0}{\overline{T}_1 - \overline{T}_0}
+\end{align*}
+Under random sampling $\widehat{\LATE}_{\text{Wald}} \inprob \LATE$ in probability.
+
+One can show that this is identical to the Two-Stage-Least Square estimator
+\begin{itemize}
+    \item \textbf{Stage 1}: Regress $T \sim [1, Z]$ and obtain fitted values $\hat T_i$
+    \begin{align*}
+        T_i &= \alpha + \beta Z_i + \varepsilon_i
+        \\
+        \hat T_i &= \hat \alpha + \hat \beta Z_i
+    \end{align*}
+    \item \textbf{Stage 2}: Regress $Y \sim [1, \hat T]$ 
+    \[
+        Y_i = \gamma + \delta \hat T_i + \eta_i
+    \]
+then $\hat \delta_{\TSLS} = \widehat{\LATE}_{\text{Wald}}$. 
+\end{itemize}
+\paragraph{Adjusting for Covariates}
+As we have seen before, we can adjust for covariates to improve precision. Our resulting estimators need not be unbiased finite-sample, but they remain consistent. We can do this for both the Wald and the TSLS estimator.
+
+\textbf{Wald with controls.} Regress $Y$ on $\bX$ and $T$ on $\bX$, obtain fitted values $\hat Y_i$ and $\hat T_i$, and define residuals
+\[
+\tilde Y_i:=Y_i-\hat Y_i,\qquad \tilde T_i:=T_i-\hat T_i.
+\]
+Then the covariate-adjusted Wald (just-identified IV) estimator is
+\begin{align*}
+\widehat{\LATE}_{\text{Wald},\bX}
+= \frac{\sum_{i=1}^n (Z_i-\bar Z)\,\tilde Y_i}{\sum_{i=1}^n (Z_i-\bar Z)\,\tilde T_i}
+\end{align*}
+
+
+\textbf{TSLS with controls.}
+\begin{align*}
+\text{Stage 1:}\quad & T_i \;=\; \alpha \;+\; \bm{\xi}^\top \bX_i \;+\; \pi Z_i \;+\; v_i,
+\qquad \hat T_i=\hat\alpha+\hat{\bm{\xi}}^\top \bX_i+\hat\pi Z_i,\\
+\text{Stage 2:}\quad & Y_i \;=\; \gamma \;+\; \bm{\zeta}^\top \bX_i \;+\; \delta \hat T_i \;+\; \eta_i.
+\end{align*}
+Take $\hat\delta$ as the estimate. This reduces to the residualized Wald ratio above, i.e.\ $\hat\delta_{\TSLS}=\widehat{\LATE}_{\text{Wald},\bX}$.
+
+\subsection{Variance}
+One way to estimate the variance is via the \emph{Delta Method}: $\Var(f(\bX)) \approx \nabla f(\bX)^\top \Var(\bX) \nabla f(\bX)$. Let $\ITT_Y = \E[Y_i(T_i(1)) - Y_i(T_i(0))]$ and $\ITT_T = \E[T_i(1) - T_i(0)]$, as well as their estimates $\widehat{\ITT}_Y := \overline{Y}_1 - \overline{Y}_0$ and $\widehat{\ITT}_T := \overline{T}_1 - \overline{T}_0$. Setting $\bX_n = [\widehat{\ITT}_Y, \widehat{\ITT}_T]^\top$ and $f(\bm{x}) = \frac{x_1}{x_2}$ we obtain
+\begin{align*}
+    \Var(\widehat{\LATE}_{\text{Wald}}) \approx \frac{1}{\ITT_T^4} \left(\ITT_T^2 \Var(\widehat{\ITT}_Y) + \ITT_Y^2 \Var(\widehat{\ITT}_T) - 2\ITT_T \ITT_I \Cov(\widehat{\ITT}_Y, \widehat{\ITT}_T))\right)
+\end{align*}
+where 
+\begin{align*}
+    \Cov(\widehat{\ITT}_Y, \widehat{\ITT}_T) = \frac{1}{n_1}\Cov(Y_i(1), T_i(1)) + \frac{1}{n_0}\Cov(Y_i(0), T_i(0))
+\end{align*}
+which we can estimate by
+
+\paragraph{Estimation.}
+
+Let the within-$Z$ sample variances and covariances be
+\[
+\hat{\sigma}^2_{Y,z}=\frac{1}{n_z-1}\sum_{i:Z_i=z}\!\left(Y_i-\overline{Y}_z\right)^2,\quad
+\hat{\sigma}^2_{T,z}=\frac{1}{n_z-1}\sum_{i:Z_i=z}\!\left(T_i-\overline{T}_z\right)^2,
+\]
+\[
+\hat{\sigma}_{YT,z}=\frac{1}{n_z-1}\sum_{i:Z_i=z}\!\left(Y_i-\overline{Y}_z\right)\!\left(T_i-\overline{T}_z\right),\qquad z\in\{0,1\}.
+\]
+Consistent estimators of the pieces are
+\[
+\widehat{\Var}(\widehat{\ITT}_Y)=\frac{\hat{\sigma}^2_{Y,1}}{n_1}+\frac{\hat{\sigma}^2_{Y,0}}{n_0},\qquad
+\widehat{\Var}(\widehat{\ITT}_T)=\frac{\hat{\sigma}^2_{T,1}}{n_1}+\frac{\hat{\sigma}^2_{T,0}}{n_0},
+\]
+\[
+\widehat{\Cov}(\widehat{\ITT}_Y,\widehat{\ITT}_T)
+=\frac{\hat{\sigma}_{YT,1}}{n_1}+\frac{\hat{\sigma}_{YT,0}}{n_0}.
+\]
+
+This gives
+\begin{align*}
+\widehat{\Var}\!\left(\widehat{\LATE}_{\text{Wald}}\right)
+=\frac{\widehat{\Var}(\widehat{\ITT}_Y)}{\widehat{\ITT}_T^{\,2}}
++\frac{\widehat{\ITT}_Y^{\,2}}{\widehat{\ITT}_T^{\,4}}\;\widehat{\Var}(\widehat{\ITT}_T)
+-\frac{2\,\widehat{\ITT}_Y}{\widehat{\ITT}_T^{\,3}}\;\widehat{\Cov}(\widehat{\ITT}_Y,\widehat{\ITT}_T)
+\end{align*}
+
+
+
+\paragraph{Variance Alternatives}
+\begin{itemize}
+    \item (Grouped) Jackknife
+    \item Bootstrap
+    \item Heteroskedasticity-robust 2SLS Variance Estimation
+\end{itemize}
+
+\paragraph{Confidence Intervals}
+A $(1-\alpha)$ confidence interval is given by
+\[
+    [\widehat{\LATE}_{\text{Wald}} \pm z_{1-\frac{\alpha}{2}} \sqrt{\widehat{\Var}\!\left(\widehat{\LATE}_{\text{Wald}}\right)}]
+\]
+
+\paragraph{Asymptotic Normality}
+\[
+    \sqrt{n}\left(\widehat{\LATE}_{\text{Wald}} - \LATE\right) \indist \Nb{0, \widehat{\Var}\!\left(\widehat{\LATE}_{\text{Wald}}\right)}
+\]
+
+\subsection{Estimating Proportions of Compliers and Always-Takers and Never-Takers under Monotonicity}
+This is limited to the binary instrument and treatment case. We have the following identities under the monotonicity assumptions
+\begin{align*}
+    \Pr(\text{Compliers}) &= \Pr(T_i = 1 \mid Z_i = 1) - \Pr(T_i = 1 \mid Z_i = 0) = \E[T_i \mid Z_i = 1] - \E[T_i \mid Z_i = 0],
+    \\
+    \Pr(\text{Never-Takers}) &= \Pr(T_i(1) = T_i(0) = 0) = \Pr(T_i(1) = 0) = \Pr(T_i = 0 \mid Z_i = 1),
+    \\
+    \Pr(\text{Always-Takers}) &= \Pr(T_i(1) = T_i(0) = 1) = \Pr(T_i(0) = 1) = \Pr(T_i = 1 \mid Z_i = 0).
+\end{align*}
+which we can estimate by
+\begin{align*}
+    \widehat{\text{Compliers}} &= \overline{T}_1 - \overline{T}_0,
+    \\
+    \widehat{\text{Never-Takers}} &= 1 - \overline{T}_1,
+     \\
+    \widehat{\text{Always-Takers}} &= \overline{T}_0.
+\end{align*}
+Their respective variances are given by (under CRD)
+\begin{align*}
+    \Var(\widehat{\text{Compliers}}) &= \frac{\Var(T_i(1))}{n_1} + \frac{\Var(T_i(0))}{n_0},
+    \\
+    \Var(\widehat{\text{Never-Takers}}) &= \frac{\Var(T_i(1))}{n_1},
+    \\
+    \Var(\widehat{\text{Always-Takers}}) &= \frac{\Var(T_i(0))}{n_0},
+\end{align*}
+such that we can form confidence intervals.
+
+
+\section{Binary Instrument and General Treatment}
+In this section we do not limit ourselves to binary treatments. An example on how the strata now behave is given for the case when $T_i \in \{0, 1, 2\}$ in Table~\ref{tab:principal_strata_multi_treatment}. Note that compliers in this case can now take three different types: $(T_i(0), T_i(1)) \in \{(0, 1), (0, 2), (1, 2)\}$.
+
+Assuming the same assumptions as in Section~\ref{subsec:ass}, we can still consider
+\begin{align*}
+\LATE = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0))]}{\E[T_i(1) - T_i(0)]} = \frac{\E[Y_i \mid Z_i = 1] - \E[Y_i \mid Z_i = 0]}{\E[T_i \mid Z_i = 1] - \E[T_i \mid Z_i = 0]} = \frac{\Cov(Y_i, Z_i)}{\Cov(T_i, Z_i)},
+\end{align*}
+which can be interpreted as the \emph{LATE-per-dose} of treatment causal effect, i.e. the effect of receiving one more unit of treatment induced by the instrument. It recovers the the average causal effect of one additional unit of treatment for the compliers (units for which the instrument moved the treatment). 
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+         $(T_i(0), T_i(1))$ & Type & Dose $t_i = T_i(1) - T_i(0)$\\ \hline
+         $(0, 0)$& No-Effect & $0$ \\ \hline
+         $(0, 1)$& Compliers &  $1$\\ \hline
+         $(0, 2)$& Compliers &  $2$\\ \hline
+         $(1, 0)$& Defiers &  $-1$ \\ \hline
+         $(1, 1)$& No-Effect &  $0$ \\ \hline
+         $(1, 2)$& Compliers &  $1$ \\ \hline
+         $(2, 0)$& Defiers & $-2$ \\ \hline
+         $(2, 1)$& Defiers & $-1$ \\ \hline
+         $(2, 2)$& No-Effect & $0$ \\ \hline
+    \end{tabular}
+    \caption{Principal Strata Multi-Treatment}
+    \label{tab:principal_strata_multi_treatment}
+\end{table}
+
+To see this, note that
+\[
+\LATE = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0))]}{\E[T_i(1) - T_i(0)]} = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0)) \indicator{T_i(1) - T_i(0) > 0}]}{\E[T_i(1) - T_i(0)]},
+\]
+under monotonicity and exclusion. Define $t_i = T_i(1) - T_i(0)$ as the \emph{dose} (the effect of the instrument on the treatment). Under monotonicity $t_i \geq 0$ for all $i = 1\ldots,n$. Then we, without expectations, we essentially consider the effect
+\[
+    \LATE_i = \frac{Y_i(T_i(1)) - Y_i(T_i(0))\indicator{t_i > 0}}{t_i}.
+\]
+
+If now, say $(Y_i(T_i(0)), Y_i(T_i(1))) = (10, 20)$ and $t_i = T_i(1) - T_i(0) = 2$ then $\LATE_i = \frac{10}{2} = 5$. Thus per dose, we increase the outcome by $5$ points for unit $i$. This only works for compliers, as otherwise the above is zero.
+
+In contrast to the binary treatment case, the denominator $\E[T_i(1) - T_i(0)]$ is now a weighted average  of compliers types categorized by their dose effect. Assuming monotonicity and $T_i \in \{0, 1, \ldots, K - 1\}$, we have
+\begin{align*}
+    \E[T_i(1) - T_i(0)] = \sum_{t = 1}^{K-1} t \Pr(T_i(1) - T_i(0) = t).
+\end{align*}
+Estimation and variance calculations can still be done via the traditional Wald estimator or 2SLS as in the previous section.
+
+\subsection{Count Treatment}
+If we assume that $T_i \in \{0, 1, \ldots, K-1\}$ count, then the above $\LATE$ as another interpretation as well
+\[
+\LATE = \frac{\E[Y_i(T_i(1)) - Y_i(T_i(0))]}{\E[T_i(1) - T_i(0)]} = \sum_{k=0}^{K-2} \sum_{j=k+1}^{K-1} w_{jk} \E \left[ \underbrace{\frac{Y_i(1) - Y_i(0)}{j - k}}_{\text{effect per dose}} \Bigg | \underbrace{T_i(1) = j, T_i(0) = k}_{\text{principal strata for the affected}}\right]
+\]
+where 
+\[
+w_{jk} = \frac{(j-k) \Pr(T_i(1) = j, T_i(0) = k)}{\sum_{k^\prime=0}^{K-2} \sum_{j^\prime=k^\prime+1}^{K-1} (j^\prime - k^\prime) \Pr(T_i(1) = j^\prime, T_i(0) = k^\prime)}
+\]
+are the weights proportional to principal strata size and how much the treatment was influenced by the instrument.
+
+\section{General Case}
+Let $\bY\in\R^n$, $\bT\in\R^{n\times K}$ be multiple endogenous regressor, $\bX\in\R^{n\times P}$ pre-treatment controls, and $\bZ\in\R^{n\times L}$ excluded instruments. The structural equation is given by
+\begin{align*}
+    \bY = \bT \bm{\beta} + \bX \bm{\gamma} + \bm{\varepsilon}, \qquad \E[\bm{\varepsilon} \mid \bT, \bX] \neq \bm{0}
+\end{align*}
+
+\subsection{Assumptions}
+\begin{itemize}
+    \item Exogeneity: $\E[\bm{\varepsilon}\mid \bZ] = 0$, i.e. $\E[\bm{\varepsilon}\mid \bZ, \bX] = \bm{0}$
+    \item Exclusion: $\bZ$ enters $\bY$ only through $\bT$ conditional on $\bX$.
+    \item Order: $L \geq K$ (at least as many excluded instruments as endogenous regressors)
+    \item Rank/Relevance: $\operatorname{rank}\!\left(\E[\tilde\bZ^\top \tilde\bT]\right)=K$ and $\operatorname{rank}\!\left(\E[\tilde\bZ^\top \tilde\bZ]\right)=L$, where $\tilde\bT=\bM_X\bT$, $\tilde\bZ=\bM_X\bZ$, and $\bM_X=\bI-\bX(\bX^\top\bX)^{-1}\bX^\top$.
+    \item Note on Monotonicity: If the outcome model is linear, we can identify $\bm{\beta}$ without assuming monotonicity. You only need monotonicity when you want an interpretation as $\LATE$.
+\end{itemize}
+
+\subsection{Two Stage Least Square}
+\begin{itemize}
+    \item Regress $\bT_i$ on $[\bZ_i, \bX_i]$ and obtain fitted values $\hat{\bT}$
+    \item Regress $\bY_i$ on $[\hat{\bT}_i, \bX]$
+    \item Coefficients of $\hat{\bT}_i$ are your $\TSLS$ estimates
+    \item Use heteroskedasticity consistent estimator
+\end{itemize}
+This will obtain a consistent and asymptotically normal estimator. Note that we do not need to assume that $\bT_i$ is linear in $[\bZ_i, \bX_i]$.
+
+\section{Examining Assumption}
+\paragraph{Exogeneity}
+
+If $L > K$ (more instruments then endogenous regressor), run a Hansen J test. Rejection implies that at least one instrument fails to be exogenous.
+
+\paragraph{Exclusion and Monotonicity}
+
+Cannot be tested, requires substantive justification.
+
+\paragraph{Relevance}
+\begin{itemize}
+    \item Instrument Strength: Regress $T \sim [1, Z]$. Report $R^2$. Can also include covariates $\bX$, then report partial $R_{T \sim Z\mid \bX}^2$.
+    \item Weak IV: Regress $T \sim [1, Z]$ and report the $F$-statistic. Rule of thumb, $Z$ is weak if F-stat $\leq 10$.
+\end{itemize}
+
+Can be generalized to multiple instruments.
+
+\subsection{Weak Instruments}
+If your instrument is weak (weakly correlated with the treatment) then estimates become unstable.
+\begin{itemize}
+    \item Biased point estimates
+    \item Confidence intervals become wide (estimated variance underestimate the true variance)
+    \item Sample variability can flip the sign of the denominator and hence estimates
+\end{itemize}
+
+If instruments a weak, a robust confidence interval (and point estimate) can be constructed by inverting the Anderson-Rubin test (AR).
+
+% \textcolor{blue}{add Ding stuff}
+
+
+\endgroup
+
+
+\end{document}
