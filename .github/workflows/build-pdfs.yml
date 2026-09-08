@@ -1,0 +1,81 @@
+name: Build and publish section PDFs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: section-pdfs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Compile all sections
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: sections/*.tex
+          work_in_root_file_dir: false
+          continue_on_error: true
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=build
+
+      - name: Collect section PDFs
+        run: |
+          mkdir -p pdfs
+          for source in sections/*.tex; do
+            pdf="build/$(basename "${source%.tex}").pdf"
+            test -s "$pdf"
+            cp "$pdf" pdfs/
+          done
+          cp LICENSE pdfs/
+
+      - name: Upload section PDFs
+        uses: actions/upload-artifact@v7
+        with:
+          name: section-pdfs
+          path: pdfs/
+          if-no-files-found: error
+
+      - name: Upload compilation logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: latex-logs
+          path: |
+            build/*.log
+            build/*.blg
+          if-no-files-found: ignore
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download section PDFs
+        uses: actions/download-artifact@v8
+        with:
+          name: section-pdfs
+          path: pdfs
+
+      # Publish within this repository so private notes stay private.
+      - name: Update the PDF branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: pdfs
+          publish_dir: ./pdfs
+          commit_message: Update section PDFs
