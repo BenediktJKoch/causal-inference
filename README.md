@@ -1,6 +1,6 @@
 # Causal Inference
 
-Hi, I'm Ben, a Harvard Statistics PhD student who writes things down to learn them. These notes grew out of my work as a teaching fellow for Professor [Kosuke Imai](https://imai.fas.harvard.edu/) in [STAT 286: Causal Inference with Applications](https://imai.fas.harvard.edu/teaching/cause.html) in Fall 2025, and aim to present key ideas in causal inference as intuitively as possible without sacrificing rigor. They remain a work in progress.
+Hi, I'm Ben, a Harvard Statistics PhD student. These notes grew out of my work as a teaching fellow for Professor \href{https://imai.fas.harvard.edu/}{Kosuke Imai} in \href{https://imai.fas.harvard.edu/teaching/cause.html}{STAT 286: Causal Inference with Applications} in Fall 2025. They remain a work in progress. All errors are my own.
 
 If you find these notes helpful, consider giving the repository a star ⭐
 
@@ -16,6 +16,6 @@ If you find these notes helpful, consider giving the repository a star ⭐
 - [Section 10: Weighting](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec10_weighting.pdf)
 - [Section 11: Panel Data](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec11_did_synthetic_control.pdf)
 
-The PDFs update automatically after a successful build on `main`.
+I drew inspiration from the wonderful \href{https://github.com/kchaz/CausalCourseNotes}{lecture notes of Kyla Chasalow}, a previous teaching fellow for the course. Also Peng Ding's \href{https://arxiv.org/pdf/2305.18793}{\emph{A First Course in Causal Inference}} has been an invaluable reference on many topics. I warmly recommend both.
 
 Copyright © 2026 Benedikt Koch. You are welcome to download these notes for personal use and share a link to this repository. Redistribution requires permission; see [LICENSE](LICENSE).
