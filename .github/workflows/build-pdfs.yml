@@ -1,4 +1,4 @@
-name: Build and publish section PDFs
+name: Build and publish course PDFs
 
 on:
   push:
@@ -23,28 +23,30 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Compile all sections
+      - name: Compile all sections and review slides
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: sections/*.tex
+          root_file: |
+            sections/*.tex
+            figures/*_review_lecture.tex
           work_in_root_file_dir: false
           continue_on_error: true
           args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=build
 
-      - name: Collect section PDFs
+      - name: Collect section and review PDFs
         run: |
           mkdir -p pdfs
-          for source in sections/*.tex; do
+          for source in sections/*.tex figures/*_review_lecture.tex; do
             pdf="build/$(basename "${source%.tex}").pdf"
             test -s "$pdf"
             cp "$pdf" pdfs/
           done
           cp LICENSE pdfs/
 
-      - name: Upload section PDFs
+      - name: Upload course PDFs
         uses: actions/upload-artifact@v7
         with:
-          name: section-pdfs
+          name: course-pdfs
           path: pdfs/
           if-no-files-found: error
 
@@ -65,10 +67,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download section PDFs
+      - name: Download course PDFs
         uses: actions/download-artifact@v8
         with:
-          name: section-pdfs
+          name: course-pdfs
           path: pdfs
 
       # Publish within this repository so private notes stay private.
@@ -78,4 +80,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: pdfs
           publish_dir: ./pdfs
-          commit_message: Update section PDFs
+          commit_message: Update course PDFs
