@@ -1,6 +1,6 @@
 # Causal Inference
 
-Hi, I'm Ben, a Harvard Statistics PhD student. These notes grew out of my work as a teaching fellow for Professor [Kosuke Imai](https://imai.fas.harvard.edu/) in [STAT 286: Causal Inference with Applications](https://imai.fas.harvard.edu/teaching/cause.html) in Fall 2025. They remain a work in progress. All errors are my own.
+Hi, I'm Ben, a Harvard Statistics PhD student. These notes grew out of my work as a teaching fellow for Professor [Kosuke Imai](https://imai.fas.harvard.edu/) in [STAT 286: Causal Inference with Applications](https://imai.fas.harvard.edu/teaching/cause.html) in Fall 2025. Credit for the course design belongs to Professor Imai. These notes are my interpretation of his lectures with sustantial additions. They remain a work in progress. All errors are my own.
 
 If you find these notes helpful, consider giving the repository a star ⭐
 
@@ -15,6 +15,9 @@ If you find these notes helpful, consider giving the repository a star ⭐
 - [Section 9: Matching](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec9_matching.pdf)
 - [Section 10: Weighting](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec10_weighting.pdf)
 - [Section 11: Panel Data](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/sec11_did_synthetic_control.pdf)
+
+- [Midterm Review Slides](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/midterm_review_lecture.pdf)
+- [Final Review Slides](https://github.com/BenediktJKoch/causal-inference/blob/pdfs/final_review_lecture.pdf)
 
 I drew inspiration from the wonderful [lecture notes](https://github.com/kchaz/CausalCourseNotes) from Kyla Chasalow, a previous teaching fellow for the course. Also Peng Ding's [A First Course in Causal Inference](https://arxiv.org/pdf/2305.18793) has been an invaluable reference on many topics. I warmly recommend both.
 
