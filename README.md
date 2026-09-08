@@ -1,6 +1,6 @@
 # Causal Inference
 
-Hi, I'm Ben, a Harvard Statistics PhD student who writes things down to learn them. These notes grew out of my work as a teaching fellow for Professor [Kosuke Imai](https://imai.fas.harvard.edu/) in [STAT 286: Causal Inference with Applications](https://imai.fas.harvard.edu/teaching/cause.html) in Fall 2025, and aim to present key ideas in causal inference as intuitively as possible without sacrificing rigor. They remain a work in progress.
+Hi, I'm Ben, a Harvard Statistics PhD student. These notes grew out of my work as a teaching fellow for Professor [Kosuke Imai](https://imai.fas.harvard.edu/) in [STAT 286: Causal Inference with Applications](https://imai.fas.harvard.edu/teaching/cause.html) in Fall 2025. They remain a work in progress. All errors are my own.
 
 If you find these notes helpful, consider giving the repository a star ⭐
 
